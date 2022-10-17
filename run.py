@@ -24,7 +24,7 @@ parser.add_argument("--auto_resume", type=bool, default=True)
 parser.add_argument("--root_dir", type=str, default=root_dir)
 parser.add_argument("--data_save_root", type=str, default=root_dir)
 parser.add_argument("--style_image_path", type=str, default=style_image_path)
-parser.add_argument("--batch_size", type=str, default=batch_size)
+parser.add_argument("--batch_size", type=int, default=batch_size)
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
