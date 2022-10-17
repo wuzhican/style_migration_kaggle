@@ -12,6 +12,7 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 batch_size = 2
 root_dir='./data'
 data_save_root='./checkpoint'
+style_image_path='./data/style.jpeg'
 models_choice_from = [
     "ImfwNet"
 ]
@@ -22,6 +23,7 @@ parser.add_argument("--model", type=str, default='DeeplabUpsampleModel')
 parser.add_argument("--auto_resume", type=bool, default=True)
 parser.add_argument("--root_dir", type=str, default=root_dir)
 parser.add_argument("--data_save_root", type=str, default=root_dir)
+parser.add_argument("--style_image_path", type=str, default=style_image_path)
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
 parser.set_defaults(resume_from_checkpoint=GetResumePath(data_save_root))
@@ -29,6 +31,7 @@ args = parser.parse_args()
 arg_v = vars(args)
 root_dir = arg_v['root_dir']
 data_save_root = arg_v['data_save_root']
+style_image_path = arg_v['style_image_path']
 
 if arg_v['model'] not in models_choice_from:
     print("model choice is not in %s,exit"%(str(models_choice_from)))
@@ -36,7 +39,7 @@ if arg_v['model'] not in models_choice_from:
 else:
     if arg_v['model'] == "ImfwNet":
         module = models.FWNetModule(
-            load_image(os.path.join(root_dir,'style.jpeg'),shape=(256,256)),
+            load_image(style_image_path,shape=(256,256)),
             automatic_optimization=False
         )
         train_dataset = loaders.styleLoader(root_dir)
