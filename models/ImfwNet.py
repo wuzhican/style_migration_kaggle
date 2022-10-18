@@ -17,7 +17,7 @@ class ResidualBlock(nn.Module):
         )
 
     def forward(self, x):
-        return F.relu(self.conv(x))
+        return F.relu(self.conv(x)+x)
 
 
 class ImfwNet(nn.Module):
@@ -73,6 +73,16 @@ class FWNetModule(pl.LightningModule):
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
         self.content_weight, self.style_weight, self.style = content_weight, style_weight, style
+        self.feature_net = InterMediateLayerGatter(self.vgg,{
+            'features/3':'layer1_2',
+            'features/8':'layer2_2',
+            'features/15':'layer3_3',
+            'features/22':'layer4_3',
+        })
+        # 内容表示的图层,均使用经过relu激活后的输出
+        style_features = self.feature_net(self.style)
+        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
+        self.style_grams = {layer: gram_matrix(style_features[layer]) for layer in style_features}
     
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -82,32 +92,29 @@ class FWNetModule(pl.LightningModule):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
-        feature_net = InterMediateLayerGatter(self.vgg,{
-            'features/3':'layer1_2',
-            'features/8':'layer2_2',
-            'features/15':'layer3_3',
-            'features/22':'layer4_3',
-        })
-        # 内容表示的图层,均使用经过relu激活后的输出
-        style_features = feature_net(self.style)
-        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = {layer: gram_matrix(style_features[layer]) for layer in style_features}
         
         opt=self.optimizers()
         opt.zero_grad()
         x = batch
         transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
-        transformed_features = feature_net(x)
-        content_features = feature_net(transformed_images)
+        
+        transformed_features = self.feature_net(x)
+        content_features = self.feature_net(transformed_images)
 
+        # 内容损失
+        # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = F.mse_loss(
             transformed_features['layer3_3'], content_features['layer3_3'])
         content_loss = self.content_weight*content_loss
         # print("batch %s: content_loss:%s "%(batch_index,content_loss))
 
+        # 全变分损失
+        # total variation图像水平和垂直平移一个像素，与原图相减
+        # 然后计算绝对值的和即为tv_loss
         _tv_loss = tv_loss(transformed_images)
         # print("batch %s: _tv_loss:%s "%(batch_index,_tv_loss))
 
+        # 风格损失
         style_loss = 0
         transformed_grams = {
             layer: gram_matrix(transformed_features[layer]) for layer in transformed_features.keys()
@@ -125,7 +132,7 @@ class FWNetModule(pl.LightningModule):
         style_loss = self.style_weight * style_loss
         # print("batch %s: style_loss:%s "%(batch_index,style_loss))
         # 3个损失加起来，梯度下降
-        loss = style_loss + content_loss + _tv_loss
+        loss = style_loss + _tv_loss
         self.log('train_loss', loss, prog_bar=True)
         self.manual_backward(loss,retain_graph = True)
         opt.step()
