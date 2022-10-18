@@ -92,6 +92,7 @@ class FWNetModule(pl.LightningModule):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
+            self.feature_net.to(self.device)
             self.fwNet.to(self.device)
         
         opt=self.optimizers()
