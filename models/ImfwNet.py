@@ -103,8 +103,10 @@ class FWNetModule(pl.LightningModule):
         content_loss = F.mse_loss(
             transformed_features['layer3_3'], content_features['layer3_3'])
         content_loss = self.content_weight*content_loss
+        print("batch %s: content_loss:%s "%(batch_index,content_loss))
 
         _tv_loss = tv_loss(transformed_images)
+        print("batch %s: _tv_loss:%s "%(batch_index,_tv_loss))
 
         style_loss = 0
         transformed_grams = {
@@ -121,7 +123,7 @@ class FWNetModule(pl.LightningModule):
             style_loss += F.mse_loss(transformed_gram,
                                 style_gram.expand_as(transformed_gram))
         style_loss = self.style_weight * style_loss
-        
+        print("batch %s: style_loss:%s "%(batch_index,style_loss))
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss
         self.log('train_loss', loss, prog_bar=True)
