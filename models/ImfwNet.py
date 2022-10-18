@@ -90,10 +90,13 @@ class FWNetModule(pl.LightningModule):
     
     def training_step(self, batch,batch_index):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
+            print('start convery device')
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
             self.feature_net.to(self.device)
             self.fwNet.to(self.device)
+            for style in self.style_grams:
+                self.style_grams[style]=self.style_grams[style].to(self.device)
         
         opt=self.optimizers()
         opt.zero_grad()
@@ -125,8 +128,6 @@ class FWNetModule(pl.LightningModule):
             transformed_gram = transformed_grams[layer]
             # 是针对一个batch图像的Gram
             style_gram = self.style_grams[layer]
-            if(str(self.device).find('cuda') != -1 and str(self.device) != str(style_gram.device)):
-                style_gram = style_gram.to(self.device)
             # 是针对一张图像的，所以要扩充style_gram
             # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
             style_loss += F.mse_loss(transformed_gram,
