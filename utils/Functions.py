@@ -13,9 +13,9 @@ def gram_matrix(tensor):
 
 
 def tv_loss(y, tv_weight=1e-5):
-    res = torch.sum(torch.abs(y[:, :, :, :-1]-y[:, :, :, 1:])) + \
-        torch.sum(torch.abs(y[:, :, :-1, :]-y[:, :, 1:, :]))
-    return res+tv_weight
+    res = torch.sum(tv_weight*torch.abs(y[:, :, :, :-1]-y[:, :, :, 1:])) + \
+        torch.sum(tv_weight*torch.abs(y[:, :, :-1, :]-y[:, :, 1:, :]))
+    return res
 
 
 def load_image(image_path, shape=None):
