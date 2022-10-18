@@ -79,6 +79,7 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
+        print('self.device'+str(self.device))
         if(str(self.device).find('cuda') != 0 and self.style.device != self.device):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
