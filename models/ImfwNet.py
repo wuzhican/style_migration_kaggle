@@ -79,7 +79,7 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
-        if(self.device=='gpu' and self.style.device != self.device):
+        if(self.device.find('cuda') != 0 and self.style.device != self.device):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
         feature_net = InterMediateLayerGatter(self.vgg,{
@@ -114,7 +114,7 @@ class FWNetModule(pl.LightningModule):
             transformed_gram = transformed_grams[layer]
             # 是针对一个batch图像的Gram
             style_gram = self.style_grams[layer]
-            if(self.device == 'gpu' and self.device != style_gram.device):
+            if(self.device.find('cuda') != 0 and self.device != style_gram.device):
                 style_gram = style_gram.to(self.device)
             # 是针对一张图像的，所以要扩充style_gram
             # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
