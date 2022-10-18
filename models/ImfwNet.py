@@ -80,7 +80,7 @@ class FWNetModule(pl.LightningModule):
     
     def training_step(self, batch,batch_index):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
-            print('start convery device')
+            # print('start convery device')
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
         
