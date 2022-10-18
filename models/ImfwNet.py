@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 import pytorch_lightning as pl
-from torchvision.models import densenet121,vgg16,VGG16_Weights
+from torchvision.models import densenet121,vgg16
 from loaders import *
 from utils import *
 
@@ -68,7 +68,7 @@ class FWNetModule(pl.LightningModule):
         super().__init__()
         self.automatic_optimization = automatic_optimization
         self.fwNet = ImfwNet()
-        vgg = vgg16(weights=VGG16_Weights.IMAGENET1K_FEATURES)
+        vgg = vgg16(pretrained=True)
         # vgg.eval()
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
