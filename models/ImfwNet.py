@@ -73,16 +73,6 @@ class FWNetModule(pl.LightningModule):
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
         self.content_weight, self.style_weight, self.style = content_weight, style_weight, style
-        self.feature_net = InterMediateLayerGatter(self.vgg,{
-            'features/3':'layer1_2',
-            'features/8':'layer2_2',
-            'features/15':'layer3_3',
-            'features/22':'layer4_3',
-        })
-        # 内容表示的图层,均使用经过relu激活后的输出
-        self.style_features = self.feature_net(self.style)
-        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
     
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -93,12 +83,18 @@ class FWNetModule(pl.LightningModule):
             print('start convery device')
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
-            self.feature_net.to(self.device)
-            self.fwNet.to(self.device)
-            for style in self.style_features:
-                self.style_features[style]=self.style_features[style].to(self.device)
-            self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         
+        self.feature_net = InterMediateLayerGatter(self.vgg,{
+            'features/3':'layer1_2',
+            'features/8':'layer2_2',
+            'features/15':'layer3_3',
+            'features/22':'layer4_3',
+        })
+        # 内容表示的图层,均使用经过relu激活后的输出
+        self.style_features = self.feature_net(self.style)
+        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
+        self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+
         opt=self.optimizers()
         opt.zero_grad()
         x = batch
