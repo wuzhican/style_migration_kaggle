@@ -79,11 +79,12 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
-        print('self.device'+str(self.device)+'\n')
-        print('self.style.device'+str(self.style.device)+'\n')
-        if(str(self.device).find('cuda') != 0 and self.style.device != self.device):
+        print('self.device '+str(self.device)+'\n')
+        print('self.style.device '+str(self.style.device)+'\n')
+        if(str(self.device).find('cuda') != 0 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
+            print('style and vgg convert to cuda')
         feature_net = InterMediateLayerGatter(self.vgg,{
             'features/3':'layer1_2',
             'features/8':'layer2_2',
@@ -116,8 +117,9 @@ class FWNetModule(pl.LightningModule):
             transformed_gram = transformed_grams[layer]
             # 是针对一个batch图像的Gram
             style_gram = self.style_grams[layer]
-            if(str(self.device).find('cuda') != 0 and self.device != style_gram.device):
+            if(str(self.device).find('cuda') != 0 and str(self.device) != str(style_gram.device)):
                 style_gram = style_gram.to(self.device)
+                print('style_gram convert to cuda')
             # 是针对一张图像的，所以要扩充style_gram
             # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
             style_loss += F.mse_loss(transformed_gram,
