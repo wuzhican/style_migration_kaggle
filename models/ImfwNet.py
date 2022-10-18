@@ -81,6 +81,7 @@ class FWNetModule(pl.LightningModule):
     def training_step(self, batch,batch_index):
         print('self.device '+str(self.device)+'\n')
         print('self.style.device '+str(self.style.device)+'\n')
+        print('self.device fine cuda in position: '+str(self.device).find('cuda')+'\n')
         if(str(self.device).find('cuda') != 0 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
