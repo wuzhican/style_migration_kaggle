@@ -28,7 +28,7 @@ parser.add_argument("--batch_size", type=int, default=batch_size)
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
-parser.set_defaults(resume_from_checkpoint=GetResumePath(data_save_root))
+# parser.set_defaults(resume_from_checkpoint=GetResumePath(data_save_root))
 args = parser.parse_args()
 arg_v = vars(args)
 root_dir = arg_v['root_dir']
