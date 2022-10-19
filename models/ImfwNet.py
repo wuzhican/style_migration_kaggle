@@ -66,6 +66,7 @@ class ImfwNet(nn.Module):
 class FWNetModule(pl.LightningModule):
     def __init__(self,style_wuzhican:torch.Tensor, content_weight:int=1,style_weight:int=1e5,automatic_optimization=True,lr=1e-3) -> None:
         super().__init__()
+        print("start save_hyperparameters")
         self.save_hyperparameters()
         print('init FWNetModule class ')
         self.automatic_optimization = automatic_optimization

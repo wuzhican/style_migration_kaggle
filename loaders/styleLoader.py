@@ -24,9 +24,11 @@ class styleLoader(data.Dataset):
             ])
         
     def __getitem__(self, index) :
+        print("start get item in index:%s"%(index))
         idx = index % len(self.images)
         while(True):
             try:
+                print("start load image in index:%s"%(index))
                 img = self.transform(
                     Image.open(os.path.join(self.root_dir, self.images[idx]))
                 )
