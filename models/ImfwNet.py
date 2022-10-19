@@ -64,7 +64,7 @@ class ImfwNet(nn.Module):
         
 
 class FWNetModule(pl.LightningModule):
-    def __init__(self,style:torch.Tensor, content_weight:int=1,style_weight:int=1e5,automatic_optimization=True,lr=1e-3) -> None:
+    def __init__(self,style_wuzhican:torch.Tensor, content_weight:int=1,style_weight:int=1e5,automatic_optimization=True,lr=1e-3) -> None:
         super().__init__()
         self.automatic_optimization = automatic_optimization
         self.fwNet = ImfwNet()
@@ -72,7 +72,7 @@ class FWNetModule(pl.LightningModule):
         vgg.eval()
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
-        self.content_weight, self.style_weight, self.style, self.lr = content_weight, style_weight, style, lr
+        self.content_weight, self.style_weight, self.style, self.lr = content_weight, style_weight, style_wuzhican, lr
         self.feature_net = None
     
     @staticmethod
