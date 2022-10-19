@@ -64,15 +64,16 @@ class ImfwNet(nn.Module):
         
 
 class FWNetModule(pl.LightningModule):
-    def __init__(self,style:torch.Tensor, content_weight:int=1,style_weight:int=1e5,automatic_optimization=True) -> None:
+    def __init__(self,style:torch.Tensor, content_weight:int=1,style_weight:int=1e5,automatic_optimization=True,lr=1e-3) -> None:
         super().__init__()
         self.automatic_optimization = automatic_optimization
         self.fwNet = ImfwNet()
         vgg = vgg16(pretrained=True)
-        # vgg.eval()
+        vgg.eval()
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
-        self.content_weight, self.style_weight, self.style = content_weight, style_weight, style
+        self.content_weight, self.style_weight, self.style, self.lr = content_weight, style_weight, style, lr
+        self.feature_net = None
     
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -84,16 +85,17 @@ class FWNetModule(pl.LightningModule):
             self.style = self.style.to(self.device)
             self.vgg.to(self.device)
         
-        self.feature_net = InterMediateLayerGatter(self.vgg,{
-            'features/3':'layer1_2',
-            'features/8':'layer2_2',
-            'features/15':'layer3_3',
-            'features/22':'layer4_3',
-        })
-        # 内容表示的图层,均使用经过relu激活后的输出
-        self.style_features = self.feature_net(self.style)
-        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+        if(self.feature_net==None):
+            self.feature_net = InterMediateLayerGatter(self.vgg,{
+                'features/3':'layer1_2',
+                'features/8':'layer2_2',
+                'features/15':'layer3_3',
+                'features/22':'layer4_3',
+            })
+            # 内容表示的图层,均使用经过relu激活后的输出
+            self.style_features = self.feature_net(self.style)
+            # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
+            self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
 
         opt=self.optimizers()
         opt.zero_grad()
@@ -132,7 +134,7 @@ class FWNetModule(pl.LightningModule):
         style_loss = self.style_weight * style_loss
         # print("batch %s: style_loss:%s "%(batch_index,style_loss))
         # 3个损失加起来，梯度下降
-        loss = style_loss + _tv_loss
+        loss = style_loss + _tv_loss + content_loss
         self.log('train_loss', loss, prog_bar=True)
         self.log('style_loss', style_loss, prog_bar=True)
         self.log('_tv_loss', _tv_loss, prog_bar=True)
@@ -140,8 +142,8 @@ class FWNetModule(pl.LightningModule):
         self.manual_backward(loss,retain_graph = True)
         opt.step()
         
-    def configure_optimizers(self, lr: int = 1e-3):
-        return torch.optim.SGD(self.fwNet.parameters(), lr)
+    def configure_optimizers(self):
+        return torch.optim.SGD(self.fwNet.parameters(), self.lr)
         
         
 if __name__ == '__main__':

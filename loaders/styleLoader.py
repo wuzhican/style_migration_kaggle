@@ -25,9 +25,16 @@ class styleLoader(data.Dataset):
         
     def __getitem__(self, index) :
         idx = index % len(self.images)
-        img = self.transform(
-            Image.open(os.path.join(self.root_dir, self.images[idx]))
-        )
+        while(True):
+            try:
+                img = self.transform(
+                    Image.open(os.path.join(self.root_dir, self.images[idx]))
+                )
+            except Exception as e:
+                print('catch exception when load image:%s ,exception message:%s '%(self.images[idx],e))
+                idx = (idx+1) % len(self.images)
+                continue
+            break
         return img
     
     def __len__(self):

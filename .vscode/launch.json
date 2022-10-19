@@ -10,10 +10,13 @@
             "request": "launch",
             // "program": "${file}",
             "args": [
-                //     "--accelerator","cpu",
-                //     "--devices","1",
+                    "--accelerator","gpu",
+                    "--devices","1",
                     "--model","ImfwNet",
-                    "--auto_resume","True",
+                    //"--auto_resume","True",
+                    "--root_dir","./data/train",
+                    "--batch_size","2",
+                    "--auto_resume","False"
                 //     "--resume_from_checkpoint","./save_data/deeplab_mask/lightning_logs/version_67/checkpoints/epoch=9-step=390.ckpt",
             ],
             "program": "run.py",
