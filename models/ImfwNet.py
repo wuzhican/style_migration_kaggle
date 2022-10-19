@@ -82,6 +82,7 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
+        print("start train batch_index:%s "%(batch_index))
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             # print('start convery device')
             self.style = self.style.to(self.device)
@@ -99,16 +100,21 @@ class FWNetModule(pl.LightningModule):
             # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
 
+        print("start zero grad batch_index:%s "%(batch_index))
         opt=self.optimizers()
         opt.zero_grad()
         x = batch
+        print("start calauate transformed_images batch_index:%s "%(batch_index))
         transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
         
+        print("start calauate transformed_features batch_index:%s "%(batch_index))
         transformed_features = self.feature_net(x)
+        print("start calauate content_features batch_index:%s "%(batch_index))
         content_features = self.feature_net(transformed_images)
 
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
+        print("start calauate content_loss batch_index:%s "%(batch_index))
         content_loss = F.mse_loss(
             transformed_features['layer3_3'], content_features['layer3_3'])
         content_loss = self.content_weight*content_loss
@@ -117,10 +123,12 @@ class FWNetModule(pl.LightningModule):
         # 全变分损失
         # total variation图像水平和垂直平移一个像素，与原图相减
         # 然后计算绝对值的和即为tv_loss
+        print("start calauate _tv_loss batch_index:%s "%(batch_index))
         _tv_loss = tv_loss(transformed_images)
         # print("batch %s: _tv_loss:%s "%(batch_index,_tv_loss))
 
         # 风格损失
+        print("start calauate style_loss batch_index:%s "%(batch_index))
         style_loss = 0
         transformed_grams = {
             layer: gram_matrix(transformed_features[layer]) for layer in transformed_features.keys()
@@ -136,12 +144,16 @@ class FWNetModule(pl.LightningModule):
         style_loss = self.style_weight * style_loss
         # print("batch %s: style_loss:%s "%(batch_index,style_loss))
         # 3个损失加起来，梯度下降
+        print("start calauate loss batch_index:%s "%(batch_index))
         loss = style_loss + _tv_loss + content_loss
+        print("start log loss value batch_index:%s "%(batch_index))
         self.log('train_loss', int(loss), prog_bar=True)
         self.log('style_loss', int(style_loss), prog_bar=True)
         self.log('_tv_loss', int(_tv_loss), prog_bar=True)
         self.log('content_loss', int(content_loss), prog_bar=True)
+        print("start manual_backward batch_index:%s "%(batch_index))
         self.manual_backward(loss,retain_graph = True)
+        print("start step batch_index:%s "%(batch_index))
         opt.step()
         
     def configure_optimizers(self):
