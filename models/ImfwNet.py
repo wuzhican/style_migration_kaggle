@@ -148,12 +148,10 @@ class FWNetModule(pl.LightningModule):
         # 3个损失加起来，梯度下降
         print("start calauate loss batch_index:%s "%(batch_index))
         loss = style_loss + _tv_loss + content_loss
-        print("start log loss value batch_index:%s "%(batch_index))
-        self.log('train_loss', int(loss), prog_bar=True)
-        self.log('style_loss', int(style_loss), prog_bar=True)
-        self.log('_tv_loss', int(_tv_loss), prog_bar=True)
-        self.log('content_loss', int(content_loss), prog_bar=True)
-        print("start manual_backward batch_index:%s "%(batch_index))
+        self.log('train_loss', loss, prog_bar=True)
+        self.log('style_loss', style_loss, prog_bar=True)
+        self.log('_tv_loss', _tv_loss, prog_bar=True)
+        self.log('content_loss', content_loss, prog_bar=True)
         self.manual_backward(loss,retain_graph = True)
         print("start step batch_index:%s "%(batch_index))
         opt.step()
