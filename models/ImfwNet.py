@@ -77,6 +77,7 @@ class FWNetModule(pl.LightningModule):
         self.vgg = vgg
         self.content_weight, self.style_weight, self.style, self.lr = content_weight, style_weight, style_wuzhican, lr
         self.feature_net = None
+        print('finish FWNetModule init ')
     
     @staticmethod
     def add_model_specific_args(parent_parser):
