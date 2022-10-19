@@ -137,10 +137,10 @@ class FWNetModule(pl.LightningModule):
         # print("batch %s: style_loss:%s "%(batch_index,style_loss))
         # 3个损失加起来，梯度下降
         loss = style_loss + _tv_loss + content_loss
-        self.log('train_loss', loss, prog_bar=True)
-        self.log('style_loss', style_loss, prog_bar=True)
-        self.log('_tv_loss', _tv_loss, prog_bar=True)
-        self.log('content_loss', content_loss, prog_bar=True)
+        self.log('train_loss', int(loss), prog_bar=True)
+        self.log('style_loss', int(style_loss), prog_bar=True)
+        self.log('_tv_loss', int(_tv_loss), prog_bar=True)
+        self.log('content_loss', int(content_loss), prog_bar=True)
         self.manual_backward(loss,retain_graph = True)
         opt.step()
         
