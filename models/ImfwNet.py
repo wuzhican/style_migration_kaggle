@@ -159,7 +159,10 @@ class FWNetModule(pl.LightningModule):
         opt.step()
         
     def configure_optimizers(self):
-        return torch.optim.Adam(self.fwNet.parameters(), self.lr)
+        print("start configure_optimizers")
+        opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
+        print("finish configure_optimizers")
+        return opt
         
         
 if __name__ == '__main__':
