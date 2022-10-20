@@ -1,3 +1,4 @@
+from statistics import mean
 from PIL import Image
 from torchvision import transforms
 import torch,os
@@ -32,6 +33,28 @@ def load_image(image_path, shape=None):
     image = in_transform(image)[:3, :, :].unsqueeze(dim=0)
     return image
 
+class UnNormalize(object):
+    def __init__(self,mean,std):
+        self.mean=mean
+        self.std=std
+ 
+    def __call__(self,tensor):
+        """
+        Args:
+        :param tensor: tensor image of size (B,C,H,W) to be un-normalized
+        :return: UnNormalized image
+        """
+        res = tensor
+        if len(tensor.size())==3:
+            for i in range(tensor.size()[0]):
+                tensor[i] = (tensor[i]+self.mean[i])/self.std[i]
+        elif len(tensor.size())==4:
+            for i in range(tensor.size()[0]):
+                for j in range(tensor.size()[1]):
+                    tensor[i][j]=(tensor[i][j]+self.mean[j])/self.std[j]
+        else:
+            print('the tensor shape is not correct')
+        return res
 
 # 定义一个将标准化后的图像转化为便于利用matplotlib可视化的函数
 def im_convert(tensor):

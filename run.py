@@ -44,7 +44,7 @@ else:
         module = models.FWNetModule(
             load_image(style_image_path,shape=(256,256)),
             automatic_optimization=False,
-            lr=3e-7
+            lr=1e-3
         )
         train_dataset = loaders.styleLoader(root_dir,augment_ratio=2)
         loader = (
