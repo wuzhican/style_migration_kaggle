@@ -9,7 +9,7 @@ def gram_matrix(tensor):
     b, c, h, w = tensor.size()
     tensor = tensor.view(b, c, h*w)
     tensor_t = tensor.transpose(1, 2)
-    gram = tensor.bmm(tensor_t)/(c*h*w)
+    gram = torch.matmul(tensor,tensor_t)
     return gram
 
 
@@ -47,11 +47,11 @@ class UnNormalize(object):
         res = tensor
         if len(tensor.size())==3:
             for i in range(tensor.size()[0]):
-                tensor[i] = (tensor[i]+self.mean[i])/self.std[i]
+                tensor[i] = tensor[i].mul(self.std[i])+self.mean[i]
         elif len(tensor.size())==4:
             for i in range(tensor.size()[0]):
                 for j in range(tensor.size()[1]):
-                    tensor[i][j]=(tensor[i][j]+self.mean[j])/self.std[j]
+                    tensor[i][j] = tensor[i][j].mul(self.std[j])+self.mean[j]
         else:
             print('the tensor shape is not correct')
         return res

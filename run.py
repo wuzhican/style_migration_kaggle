@@ -8,6 +8,7 @@ from torchvision import transforms
 from utils.Functions import *
 from argparse import ArgumentParser
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from pytorch_lightning.loggers import TensorBoardLogger
 
 batch_size = 2
 root_dir='./data'
@@ -44,18 +45,22 @@ else:
         module = models.FWNetModule(
             load_image(style_image_path,shape=(256,256)),
             automatic_optimization=False,
-            lr=1e-3
+            lr=1e-6
         )
         train_dataset = loaders.styleLoader(root_dir,augment_ratio=2)
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
         )
-        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=3, verbose=False, mode="min")]
+        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=9, verbose=False, mode="min")]
+        logger = TensorBoardLogger("fwNet_logs", name="ImfwNet")
+        models_args={
+            'logger':logger
+        }
 
 if __name__ == '__main__':
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,max_epochs = -1)
+    trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,max_epochs = -1,**models_args)
     if arg_v['auto_scale_batch_size']:
-        trainer.tune(module,*loader)
+        trainer.tune(module, *loader)
     else:
-        trainer.fit(module,*loader)
+        trainer.fit(module, *loader)
 
