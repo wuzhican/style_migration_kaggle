@@ -20,7 +20,7 @@ class ResidualBlock(nn.Module):
         return F.relu(self.conv(x)+x)
 
 
-class ImfwNet(nn.Module):
+class ImfwNet(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
