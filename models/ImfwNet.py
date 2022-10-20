@@ -20,7 +20,7 @@ class ResidualBlock(nn.Module):
         return F.relu(self.conv(x)+x)
 
 
-class ImfwNet(pl.LightningModule):
+class ImfwNet(object):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
@@ -56,7 +56,7 @@ class ImfwNet(pl.LightningModule):
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
         )
 
-    def forward(self, x):
+    def __call__(self, x):
         x = self.downsample(x)
         x = self.res_blocks(x)
         x = self.upsample(x)
