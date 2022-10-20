@@ -3,13 +3,13 @@ from typing import Dict
 import torch.nn as nn
 
 
-class InterMediateLayerGatter(nn.Module):
+class InterMediateLayerGatter(object):
     def __init__(self, model: nn.Module, layers: Dict) -> None:
         super().__init__()
         self.model = model
         self.layers = layers
 
-    def forward(self, x):
+    def __call__(self, x):
         res = OrderedDict()
         # this is the hook version
         def get_hook(layer_key):
