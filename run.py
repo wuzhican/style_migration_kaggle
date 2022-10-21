@@ -45,14 +45,14 @@ else:
         module = models.FWNetModule(
             load_image(style_image_path,shape=(256,256)),
             automatic_optimization=False,
-            lr=1e-6
+            lr=1e-5
         )
         train_dataset = loaders.styleLoader(root_dir,augment_ratio=2)
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
         )
         hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=9, verbose=False, mode="min")]
-        logger = TensorBoardLogger("fwNet_logs", name="ImfwNet")
+        logger = TensorBoardLogger("./data/lightning_logs", name="ImfwNet")
         models_args={
             'logger':logger
         }

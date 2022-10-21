@@ -1,25 +1,37 @@
 from collections import OrderedDict
+from turtle import forward
 from typing import Dict
 import torch.nn as nn
 
+class CatchLayer(nn.Module):
+    def __init__(self,layer:nn.Module) -> None:
+        super().__init__()
+        self.layer = layer
+    
+    def forward(self,x):
+        x = self.layer(x)
+        self.y = x
+        return x
+        
+    def get_catch(self):
+        return self.y
 
-class InterMediateLayerGatter(object):
+class InterMediateLayerGatter(nn.Module):    
     def __init__(self, model: nn.Module, layers: Dict) -> None:
         super().__init__()
         self.model = model
         self.layers = layers
 
-    def __call__(self, x):
+    def forward(self, x):
         res = OrderedDict()
-        # this is the hook version
-        def get_hook(layer_key):
-            def get_output_hook(module, fea_in, fea_out):
-                res[layer_key] = fea_out
-            return get_output_hook
-        for layer in self.layers.keys():
-            net = self.model
-            for i in layer.split('/'):
-                net = getattr(net, i)
-            net.register_forward_hook(hook=get_hook(self.layers[layer]))
+        for name,layer in self.model.named_modules():
+            if name in self.layers.keys():
+                name_s = name.split('.')
+                if(len(name_s)>1):
+                    layer_p = getattr(self.model,'.'.join(name_s[:-1]))
+                layer_p.add_module(name_s[-1],CatchLayer(layer))
         self.model(x)
+        for name,layer in self.model.named_modules():
+            if name in self.layers.keys():
+                res[self.layers[name]] = layer.get_catch()
         return res
