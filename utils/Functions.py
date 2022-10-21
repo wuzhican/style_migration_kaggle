@@ -73,7 +73,7 @@ def im_convert(tensor):
 def GetResumePath(data_save_root,):
     max_record = {-100:'-100'}
     max, max_tag = -100, '-100'
-    save_dir = os.path.join(data_save_root, 'lightning_logs')
+    save_dir = os.path(data_save_root)
     for i in os.popen('ls %s' % (save_dir)):
         t = i.replace('version_', '').replace('\n', '')
         max_record[int(t)] = t
