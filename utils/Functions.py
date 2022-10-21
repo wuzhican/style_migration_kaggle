@@ -9,7 +9,7 @@ def gram_matrix(tensor):
     b, c, h, w = tensor.size()
     tensor = tensor.view(b, c, h*w)
     tensor_t = tensor.transpose(1, 2)
-    gram = torch.matmul(tensor,tensor_t)
+    gram = torch.matmul(tensor, tensor_t)/(c*h*w)
     return gram
 
 
