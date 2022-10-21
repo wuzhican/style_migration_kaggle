@@ -21,7 +21,7 @@ models_choice_from = [
 
 parser = ArgumentParser()
 parser.add_argument("--model", type=str, default='DeeplabUpsampleModel')
-parser.add_argument("--learning_rate", type=int, default=1e-3)
+parser.add_argument("--learning_rate", type=float, default=1e-3)
 parser.add_argument("--auto_resume", type=bool, default=True)
 parser.add_argument("--root_dir", type=str, default=root_dir)
 parser.add_argument("--data_save_root", type=str, default=root_dir)
