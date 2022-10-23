@@ -1,4 +1,4 @@
-./checkpoint/*
-./data/lightning_logs
-./train/*
-./*/__pycache__
+./checkpoint/*/*.ckpt
+./data/lightning_logs/
+./data/train/**.jpg
+./*/__pycache__/*.pyc

@@ -1,18 +1,14 @@
-import models,utils
-import matplotlib.pyplot as plt
-from torchvision import transforms
-
-# fwnet=models.FWNetModule(utils.load_image('./data/style.jpeg'))
-checkpoint_path = utils.GetResumePath('./data/lightning_logs/ImfwNet')
-fwnet = models.FWNetModule.load_from_checkpoint(
-    checkpoint_path, style_wuzhican=utils.load_image('./data/style.jpeg'))
-
-un = utils.UnNormalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-toImg = transforms.ToPILImage()
-
-img=utils.load_image('./data/style.jpeg')[0]
-target=toImg(un(fwnet.fwNet(img).clamp(-2.1, 2.7)))
-target.show()
+from argparse import ArgumentParser
+import test
 
 
+parser = ArgumentParser()
+parser.add_argument("--model", type=str, default='ImfwNetTester')
 
+
+args = parser.parse_args()
+arg_v = vars(args)
+
+if __name__ == '__main__':
+    tester = getattr(test,arg_v['model'])()
+    tester.run()
