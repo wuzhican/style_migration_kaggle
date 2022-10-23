@@ -12,9 +12,6 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 # import tensorboard
 
-import sys  # 导入sys模块
-sys.setrecursionlimit(6000)
-
 batch_size = 2
 root_dir='./data'
 data_save_root='./checkpoint'
@@ -72,7 +69,7 @@ else:
         }
     elif arg_v['model'] == 'SMNet':
         module = models.SMNet(
-            load_image(style_image_path,shape=(256,256)),
+            load_image(style_image_path,shape=(512,512)),
             style_weight=style_weight,
             content_weight=content_weight,
             automatic_optimization=False

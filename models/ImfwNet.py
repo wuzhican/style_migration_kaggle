@@ -3,6 +3,7 @@ import torch.nn.functional as F
 import torch.nn as nn
 import pytorch_lightning as pl
 from torchvision.models import densenet121,vgg16
+from torchvision.models._utils import IntermediateLayerGetter
 from loaders import *
 from utils import *
 
@@ -76,11 +77,11 @@ class FWNetModule(pl.LightningModule):
         vgg.classifier = nn.Sequential()
         self.vgg = vgg
         self.content_weight, self.style_weight, self.style, self.lr, self.tv_weight = content_weight, style_weight, style_wuzhican, lr, tv_weight
-        self.feature_net = InterMediateLayerGatter(self.vgg,{
-            'features.3':'layer1_2',
-            'features.8':'layer2_2',
-            'features.15':'layer3_3',
-            'features.22':'layer4_3',
+        self.feature_net = IntermediateLayerGetter(self.vgg.features,{
+            '3':'layer1_2',
+            '8':'layer2_2',
+            '15':'layer3_3',
+            '22':'layer4_3',
         })
         # 内容表示的图层,均使用经过relu激活后的输出
         self.style_features = self.feature_net(self.style)

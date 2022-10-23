@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, models, transforms
 from torch.utils.data import DataLoader
-from utils import InterMediateLayerGatter
+from torchvision.models._utils import IntermediateLayerGetter
 import pytorch_lightning as pl
 
 
@@ -16,11 +16,11 @@ class SMNet(pl.LightningModule):
         self.vgg=models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
         self.automatic_optimization = automatic_optimization
-        self.feature_net = InterMediateLayerGatter(self.vgg,{
-            'features.3':'layer1_2',
-            'features.8':'layer2_2',
-            'features.15':'layer3_3',
-            'features.22':'layer4_3',
+        self.feature_net = IntermediateLayerGetter(self.vgg.features,{
+            '3':'layer1_2',
+            '8':'layer2_2',
+            '15':'layer3_3',
+            '22':'layer4_3',
         })
         
     def training_step(self,batch,batch_index):
@@ -39,7 +39,7 @@ class SMNet(pl.LightningModule):
         content_loss = self.content_weight*content_loss
         style_loss = 0
         for layer in style_features:
-            style_loss += F.mse_loss(utils.gram_matrix(style_features[layer]),utils.gram_matrix(input_features[layer]))
+            style_loss += F.mse_loss(utils.gram_matrix(style_features[layer].expand_as(input_features[layer])),utils.gram_matrix(input_features[layer]))
         style_loss = self.style_weight * style_loss
         loss = style_loss+content_loss
         self.manual_backward(loss,retain_graph = True)
