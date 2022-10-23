@@ -95,13 +95,6 @@ class FWNetModule(pl.LightningModule):
     def training_step(self, batch,batch_index):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
-            self.vgg.to(self.device)
-            self.feature_net = InterMediateLayerGatter(self.vgg,{
-                'features.3':'layer1_2',
-                'features.8':'layer2_2',
-                'features.15':'layer3_3',
-                'features.22':'layer4_3',
-            })
             self.style_features = self.feature_net(self.style)
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         opt = self.optimizers()
@@ -148,6 +141,9 @@ class FWNetModule(pl.LightningModule):
         self.log('content_loss', content_loss, prog_bar=True)
         opt.step()
         
+    def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
+        torch.cuda.empty_cache()
+    
     def configure_optimizers(self):
         # print("start configure_optimizers")
         opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
