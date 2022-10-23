@@ -32,6 +32,7 @@ parser.add_argument("--style_image_path", type=str, default=style_image_path)
 parser.add_argument("--batch_size", type=int, default=batch_size)
 parser.add_argument("--style_weight", type=float, default=1e3)
 parser.add_argument("--content_weight", type=float, default=1)
+parser.add_argument("--tv_weight", type=float, default=1e-3)
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
@@ -45,6 +46,7 @@ batch_size = arg_v['batch_size']
 lr = arg_v['learning_rate']
 style_weight = arg_v['style_weight']
 content_weight = arg_v['content_weight']
+tv_weight = arg_v['tv_weight']
 
 if arg_v['model'] not in models_choice_from:
     print("model choice is not in %s,exit"%(str(models_choice_from)))
@@ -55,6 +57,7 @@ else:
             load_image(style_image_path,shape=(256,256)),
             style_weight=style_weight,
             content_weight=content_weight,
+            tv_weight=tv_weight,
             automatic_optimization=False,
             lr=lr
         )
@@ -62,7 +65,7 @@ else:
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
         )
-        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=9, verbose=False, mode="min")]
+        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=3, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="ImfwNet")
         models_args={
             'logger':logger
