@@ -9,7 +9,7 @@ def gram_matrix(tensor):
     b, c, h, w = tensor.size()
     tensor = tensor.view(b, c, h*w)
     tensor_t = tensor.transpose(1, 2)
-    gram = torch.matmul(tensor, tensor_t)/(c*h*w)
+    gram = torch.matmul(tensor, tensor_t)/(b*c*h*w)
     return gram
 
 
@@ -30,7 +30,8 @@ def load_image(image_path, shape=None):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                              0.229, 0.224, 0.225])
     ])
-    image = in_transform(image)[:3, :, :].unsqueeze(dim=0)
+    image = in_transform(image)
+    image = image[:3, :, :].unsqueeze(dim=0)
     return image
 
 class UnNormalize(object):

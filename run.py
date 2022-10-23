@@ -10,12 +10,15 @@ from argparse import ArgumentParser
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
+# import tensorboard
+
 batch_size = 2
 root_dir='./data'
 data_save_root='./checkpoint'
 style_image_path='./data/style.jpeg'
 models_choice_from = [
-    "ImfwNet"
+    "ImfwNet",
+    "SMNet"
 ]
     
 
@@ -27,6 +30,8 @@ parser.add_argument("--root_dir", type=str, default=root_dir)
 parser.add_argument("--data_save_root", type=str, default=root_dir)
 parser.add_argument("--style_image_path", type=str, default=style_image_path)
 parser.add_argument("--batch_size", type=int, default=batch_size)
+parser.add_argument("--style_weight", type=float, default=1e3)
+parser.add_argument("--content_weight", type=float, default=1)
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
@@ -38,6 +43,8 @@ data_save_root = arg_v['data_save_root']
 style_image_path = arg_v['style_image_path']
 batch_size = arg_v['batch_size']
 lr = arg_v['learning_rate']
+style_weight = arg_v['style_weight']
+content_weight = arg_v['content_weight']
 
 if arg_v['model'] not in models_choice_from:
     print("model choice is not in %s,exit"%(str(models_choice_from)))
@@ -46,6 +53,8 @@ else:
     if arg_v['model'] == "ImfwNet":
         module = models.FWNetModule(
             load_image(style_image_path,shape=(256,256)),
+            style_weight=style_weight,
+            content_weight=content_weight,
             automatic_optimization=False,
             lr=lr
         )
@@ -55,6 +64,22 @@ else:
         )
         hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=9, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="ImfwNet")
+        models_args={
+            'logger':logger
+        }
+    elif arg_v['model'] == 'SMNet':
+        module = models.SMNet(
+            load_image(style_image_path,shape=(256,256)),
+            style_weight=style_weight,
+            content_weight=content_weight,
+            automatic_optimization=False
+        )
+        train_dataset = loaders.styleLoader(root_dir,augment_ratio=1)
+        loader = (
+            DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
+        )
+        hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
+        logger = TensorBoardLogger("./data/lightning_logs", name="SMNet")
         models_args={
             'logger':logger
         }

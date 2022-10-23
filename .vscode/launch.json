@@ -12,11 +12,16 @@
             "args": [
                     "--accelerator","gpu",
                     "--devices","1",
-                    "--model","ImfwNet",
+                    // "--model","ImfwNet",
+                    "--model","SMNet",
                     //"--auto_resume","True",
                     "--root_dir","./data/train",
                     "--batch_size","2",
-                    "--auto_resume","False"
+                    "--auto_resume","False",
+                    "--style_image_path","./data/style2.jpg",
+                    "--style_weight","1e3",
+                    "--content_weight","1",
+                    "--learning_rate","1e-7",
                 //     "--resume_from_checkpoint","./save_data/deeplab_mask/lightning_logs/version_67/checkpoints/epoch=9-step=390.ckpt",
             ],
             "program": "run.py",

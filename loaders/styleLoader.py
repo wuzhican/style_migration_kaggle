@@ -16,8 +16,8 @@ class styleLoader(data.Dataset):
             self.transform=transform
         else:
             self.transform = transforms.Compose([
-                transforms.Resize((256,256)),
-                transforms.CenterCrop(256),
+                # transforms.Resize((512,512)),
+                transforms.CenterCrop(512),
                 transforms.ToTensor(),  # 转为0-1的张量
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],\
                     std=[0.229, 0.224, 0.225])

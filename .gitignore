@@ -1,0 +1,4 @@
+./checkpoint/*
+./data/lightning_logs
+./train/*
+./*/__pycache__

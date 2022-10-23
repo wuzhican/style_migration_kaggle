@@ -64,7 +64,7 @@ class ImfwNet(nn.Module):
         
 
 class FWNetModule(pl.LightningModule):
-    def __init__(self,style_wuzhican:torch.Tensor, content_weight:int=1,style_weight:int=1e5,tv_weight=1e-5,automatic_optimization=True,lr=1e-3) -> None:
+    def __init__(self,style_wuzhican:torch.Tensor, content_weight:int=1e3,style_weight:int=1e-1,tv_weight=1e-5,automatic_optimization=True,lr=1e-3) -> None:
         super().__init__()
         # print("start save_hyperparameters")
         self.save_hyperparameters()
@@ -104,18 +104,20 @@ class FWNetModule(pl.LightningModule):
             })
             self.style_features = self.feature_net(self.style)
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
-        opt=self.optimizers()
+        opt = self.optimizers()
         opt.zero_grad()
         x = batch
-        transformed_images = self.fwNet(x)
+        transformed_images = (self.fwNet(x)).clamp(-2.1, 2.7)
         
         transformed_features = self.feature_net(transformed_images)
         content_features = self.feature_net(x)
 
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
-        content_loss = F.mse_loss(
-            transformed_features['layer3_3'], content_features['layer3_3'])
+        content_loss = 0
+        for layer in transformed_features:
+            content_loss += F.mse_loss(
+                transformed_features[layer], content_features[layer])
         content_loss = self.content_weight*content_loss
 
         # 全变分损失
