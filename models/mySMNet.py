@@ -15,7 +15,6 @@ class SMNet(pl.LightningModule):
         self.style,self.content_weight,self.style_weight = style,content_weight,style_weight
         self.vgg=models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
-        self.input_image.clamp_(0,1)
         self.automatic_optimization = automatic_optimization
         self.feature_net = IntermediateLayerGetter(self.vgg.features,{
             '3':'layer1_2',
@@ -30,6 +29,7 @@ class SMNet(pl.LightningModule):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
+        self.input_image.data.clamp_(0,1)
         style_features = self.feature_net(self.style)
         content_features = self.feature_net(batch)
         input_features = self.feature_net(self.input_image)
