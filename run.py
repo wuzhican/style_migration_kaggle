@@ -12,6 +12,9 @@ from pytorch_lightning.loggers import TensorBoardLogger
 
 # import tensorboard
 
+import sys  # 导入sys模块
+sys.setrecursionlimit(6000)
+
 batch_size = 2
 root_dir='./data'
 data_save_root='./checkpoint'

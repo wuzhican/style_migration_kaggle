@@ -1,7 +1,2 @@
-loaders/__pycache__/__init__.cpython-310.pyc
-loaders/__pycache__/styleLoader.cpython-310.pyc
-models/__pycache__/__init__.cpython-310.pyc
-models/__pycache__/ImfwNet.cpython-310.pyc
-utils/__pycache__/__init__.cpython-310.pyc
-utils/__pycache__/Functions.cpython-310.pyc
-utils/__pycache__/InterMediateLayerGatter.cpython-310.pyc
+*/__pycache__/*
+data/lightning_logs/**
