@@ -15,6 +15,7 @@ class SMNet(pl.LightningModule):
         self.style,self.content_weight,self.style_weight = style,content_weight,style_weight
         self.vgg=models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
+        self.input_image.clamp_(0,1)
         self.automatic_optimization = automatic_optimization
         self.feature_net = IntermediateLayerGetter(self.vgg.features,{
             '3':'layer1_2',
