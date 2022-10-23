@@ -30,15 +30,16 @@ class SMNet(pl.LightningModule):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
         style_features = self.feature_net(self.style)
-        content_features = self.feature_net(self.input_image)
+        content_features = self.feature_net(batch)
+        input_features = self.feature_net(self.input_image)
         content_loss = 0
         for layer in style_features:
             content_loss += F.mse_loss(
-                style_features[layer], content_features[layer])
+                input_features[layer], content_features[layer])
         content_loss = self.content_weight*content_loss
         style_loss = 0
         for layer in style_features:
-            style_loss += F.mse_loss(utils.gram_matrix(style_features[layer]),utils.gram_matrix(content_features[layer]))
+            style_loss += F.mse_loss(utils.gram_matrix(style_features[layer]),utils.gram_matrix(input_features[layer]))
         style_loss = self.style_weight * style_loss
         loss = style_loss+content_loss
         self.manual_backward(loss,retain_graph = True)
