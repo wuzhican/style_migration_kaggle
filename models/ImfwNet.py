@@ -109,7 +109,7 @@ class FWNetModule(pl.LightningModule):
 
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
-        content_loss = 0
+        content_loss = F.mse_loss(transformed_features,x)
         for layer in self.style_grams:
             if layer in ['layer3_3','layer1_2','layer4_3']:
                 content_loss += F.mse_loss(
