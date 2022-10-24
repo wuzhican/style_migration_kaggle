@@ -72,12 +72,12 @@ class FWNetModule(pl.LightningModule):
         # print('init FWNetModule class ')
         self.automatic_optimization = automatic_optimization
         self.fwNet = ImfwNet()
-        vgg = vgg16(pretrained=True)
-        vgg.eval()
-        vgg.classifier = nn.Sequential()
+        vgg = vgg16(pretrained=True).features
+        # vgg.eval()
+        # vgg.classifier = nn.Sequential()
         self.vgg = vgg
         self.content_weight, self.style_weight, self.style, self.lr, self.tv_weight = content_weight, style_weight, style_wuzhican, lr, tv_weight
-        self.feature_net = IntermediateLayerGetter(self.vgg.features,{
+        self.feature_net = IntermediateLayerGetter(vgg,{
             '3':'layer1_2',
             '8':'layer2_2',
             '15':'layer3_3',

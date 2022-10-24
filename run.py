@@ -25,7 +25,8 @@ models_choice_from = [
 parser = ArgumentParser()
 parser.add_argument("--model", type=str, default='DeeplabUpsampleModel')
 parser.add_argument("--learning_rate", type=float, default=1e-3)
-parser.add_argument("--auto_resume", type=bool, default=True)
+parser.add_argument("--auto_resume", action="store_true")
+parser.add_argument("--resume_path", type=str, default=None)
 parser.add_argument("--root_dir", type=str, default=root_dir)
 parser.add_argument("--data_save_root", type=str, default=root_dir)
 parser.add_argument("--style_image_path", type=str, default=style_image_path)
@@ -36,7 +37,6 @@ parser.add_argument("--tv_weight", type=float, default=1e-3)
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
-# parser.set_defaults(resume_from_checkpoint=GetResumePath(data_save_root))
 args = parser.parse_args()
 arg_v = vars(args)
 root_dir = arg_v['root_dir']
@@ -47,6 +47,7 @@ lr = arg_v['learning_rate']
 style_weight = arg_v['style_weight']
 content_weight = arg_v['content_weight']
 tv_weight = arg_v['tv_weight']
+
 
 if arg_v['model'] not in models_choice_from:
     print("model choice is not in %s,exit"%(str(models_choice_from)))
@@ -86,6 +87,9 @@ else:
         models_args={
             'logger':logger
         }
+
+if arg_v['auto_resume'] or arg_v['resume_path']:
+    models_args['resume_from_checkpoint'] = GetResumePath(data_save_root if not arg_v['resume_path'] else arg_v['resume_path'])
 
 if __name__ == '__main__':
     trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,max_epochs = -1,**models_args)

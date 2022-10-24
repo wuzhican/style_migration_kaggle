@@ -77,6 +77,7 @@ def GetResumePath(data_save_root,):
     max, max_tag = -100, '-100'
     save_dir = data_save_root
     for i in os.popen('ls %s' % (save_dir)):
+        assert i.find('version') != -1
         t = i.replace('version_', '').replace('\n', '')
         max_record[int(t)] = t
         if(int(t) > max):

@@ -1,5 +1,3 @@
-
-
 from test.AbstractTester import AbstractTester
 import models,utils
 import matplotlib.pyplot as plt
@@ -9,7 +7,8 @@ from test.AbstractTester import AbstractTester
 class MSNetTester(AbstractTester):
     def __init__(self) -> None:
         super().__init__()
-        self.checkpoint_path = utils.GetResumePath('./data/lightning_logs/SMNet')
+        # self.checkpoint_path = utils.GetResumePath('./data/lightning_logs/SMNet')
+        self.checkpoint_path = './checkpoint/lightning_logs/epoch=44-step=5805.ckpt'
         self.smnet = models.SMNet.load_from_checkpoint(
             self.checkpoint_path, style=utils.load_image('./data/style2.jpg',shape=(512,512)))
     
