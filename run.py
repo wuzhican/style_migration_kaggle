@@ -66,7 +66,7 @@ else:
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
         )
-        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.00, patience=3, verbose=False, mode="min")]
+        hooks = [EarlyStopping(monitor="train_loss", min_delta=0.1, patience=3, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="ImfwNet")
         models_args={
             'logger':logger
@@ -90,9 +90,10 @@ else:
 
 if arg_v['auto_resume'] or arg_v['resume_path']:
     models_args['resume_from_checkpoint'] = GetResumePath(data_save_root if not arg_v['resume_path'] else arg_v['resume_path'])
+    hooks=[]
 
 if __name__ == '__main__':
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,max_epochs = -1,**models_args)
+    trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,**models_args)
     if arg_v['auto_scale_batch_size']:
         trainer.tune(module, *loader)
     else:

@@ -25,7 +25,7 @@ class ImfwNet(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
-        self.downsample = nn.Sequential(
+        downsample = nn.Sequential(
             nn.ReplicationPad2d(4),
             nn.Conv2d(3, 32, kernel_size=9, stride=1),
             nn.InstanceNorm2d(32, affine=True),
@@ -38,14 +38,14 @@ class ImfwNet(nn.Module):
             nn.InstanceNorm2d(128, affine=True),
             nn.ReLU()
         )
-        self.res_blocks = nn.Sequential(
+        res_blocks = nn.Sequential(
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128)
         )
-        self.upsample = nn.Sequential(
+        upsample = nn.Sequential(
             nn.ConvTranspose2d(128, 64, kernel_size=3,
                                stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(64, affine=True),
@@ -56,12 +56,14 @@ class ImfwNet(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
         )
+        self.model = nn.Sequential(
+            downsample,
+            res_blocks,
+            upsample
+        )
 
     def forward(self, x):
-        x = self.downsample(x)
-        x = self.res_blocks(x)
-        x = self.upsample(x)
-        return x
+        return self.model(x)
         
 
 class FWNetModule(pl.LightningModule):
@@ -87,7 +89,6 @@ class FWNetModule(pl.LightningModule):
         self.style_features = self.feature_net(self.style)
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
         self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
-        # print('finish FWNetModule init ')
     
     @staticmethod
     def add_model_specific_args(parent_parser):
@@ -101,7 +102,7 @@ class FWNetModule(pl.LightningModule):
         opt = self.optimizers()
         opt.zero_grad()
         x = batch
-        transformed_images = (self.fwNet(x)).clamp(-2.1, 2.7)
+        transformed_images = (self.fwNet(x)).clamp(0,1)
         
         transformed_features = self.feature_net(transformed_images)
         content_features = self.feature_net(x)
@@ -110,8 +111,9 @@ class FWNetModule(pl.LightningModule):
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = 0
         for layer in self.style_grams:
-            content_loss += F.mse_loss(
-                transformed_features[layer], content_features[layer])
+            if layer in ['layer3_3','layer1_2','layer4_3']:
+                content_loss += F.mse_loss(
+                    transformed_features[layer], content_features[layer])
         content_loss = self.content_weight*content_loss
 
         # 全变分损失

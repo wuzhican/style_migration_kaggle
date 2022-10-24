@@ -12,6 +12,6 @@ class ImfwNetTester(AbstractTester):
         self.toImg = transforms.ToPILImage()
         
     def run(self):
-        img = utils.load_image('./data/style.jpeg')[0]
-        target = self.toImg(self.un(self.fwnet.fwNet(img).clamp(-2.1, 2.7)))
+        img = utils.load_image('./data/style1.jpg')[0]
+        target = self.toImg(self.un(self.fwnet.fwNet(img).clamp(0,1)))
         target.show()
