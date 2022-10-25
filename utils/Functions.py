@@ -1,9 +1,12 @@
-from statistics import mean
+import torch.nn as nn
 from PIL import Image
+import matplotlib.pyplot as plt
 from torchvision import transforms
 import torch,os
 import numpy as np
 
+if __name__ != '__main__':
+    plt.ion()
 
 def gram_matrix(tensor):
     b, c, h, w = tensor.size()
@@ -31,14 +34,30 @@ def load_image(image_path, shape=None):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                              0.229, 0.224, 0.225])
     ])
-    image = in_transform(image)
+    image = in_transform(image).clamp(0,1)
     image = image[:3, :, :].unsqueeze(dim=0)
     return image
 
+def show_tensor(image:torch.Tensor):
+    un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+    def show_image(img):
+        img = un(img.cpu()).data.numpy()
+        img = img.transpose(1,2,0).clip(0,1)
+        plt.figure()
+        plt.imshow(img)
+        plt.pause(0.5)
+    if len(image.size())==3:
+        show_image(image)
+    elif len(image.size()) == 4:
+        for i in range(image.size()[0]):
+            show_image(image[i])
+    else:
+        raise ValueError("the tensor size is not in [3D,4D]")
+
 class UnNormalize(object):
     def __init__(self,mean,std):
-        self.mean=mean
-        self.std=std
+        self.mean = torch.tensor(mean)
+        self.std = torch.tensor(std)
  
     def __call__(self,tensor):
         """
@@ -46,17 +65,17 @@ class UnNormalize(object):
         :param tensor: tensor image of size (B,C,H,W) to be un-normalized
         :return: UnNormalized image
         """
-        res = tensor
+        tensor
         if len(tensor.size())==3:
+            for i in range(3):
+                tensor[i] = tensor[i] * self.std[i] + self.mean[i]
+        elif len(tensor.size()) == 4:
             for i in range(tensor.size()[0]):
-                tensor[i] = tensor[i].mul(self.std[i])+self.mean[i]
-        elif len(tensor.size())==4:
-            for i in range(tensor.size()[0]):
-                for j in range(tensor.size()[1]):
-                    tensor[i][j] = tensor[i][j].mul(self.std[j])+self.mean[j]
+                for j in range(3):
+                    tensor[i][j] = tensor[i][j] * self.std[j] + self.mean[j]
         else:
             print('the tensor shape is not correct')
-        return res
+        return tensor
 
 # 定义一个将标准化后的图像转化为便于利用matplotlib可视化的函数
 def im_convert(tensor):
