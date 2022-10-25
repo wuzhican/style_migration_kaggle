@@ -1,8 +1,8 @@
-from test.AbstractTester import AbstractTester
+from tester.AbstractTester import AbstractTester
 import models,utils
 import matplotlib.pyplot as plt
 from torchvision import transforms
-from test.AbstractTester import AbstractTester
+from tester.AbstractTester import AbstractTester
 from utils.Functions import show_tensor
 
 class MSNetTester(AbstractTester):

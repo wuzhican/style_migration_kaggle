@@ -1,6 +1,6 @@
 import models
 import utils
-from test.AbstractTester import AbstractTester
+from tester.AbstractTester import AbstractTester
 import matplotlib.pyplot as plt
 from torchvision import transforms
 

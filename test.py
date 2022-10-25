@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-import test
+import tester
 
 
 parser = ArgumentParser()
@@ -10,5 +10,5 @@ args = parser.parse_args()
 arg_v = vars(args)
 
 if __name__ == '__main__':
-    tester = getattr(test,arg_v['model'])()
+    tester = getattr(tester,arg_v['model'])()
     tester.run()
