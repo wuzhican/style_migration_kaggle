@@ -44,7 +44,7 @@ def show_image(img):
     img = img.transpose(1,2,0).clip(0,1)
     plt.figure()
     plt.imshow(img)
-    plt.pause(15)
+    plt.pause(0.01)
 
 def show_tensor(image:torch.Tensor,show_image = show_image):
     if len(image.size())==3:
