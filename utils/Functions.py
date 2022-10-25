@@ -38,14 +38,15 @@ def load_image(image_path, shape=None):
     image = image[:3, :, :].unsqueeze(dim=0)
     return image
 
-def show_tensor(image:torch.Tensor):
+def show_image(img):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
-    def show_image(img):
-        img = un(img.cpu()).data.numpy()
-        img = img.transpose(1,2,0).clip(0,1)
-        plt.figure()
-        plt.imshow(img)
-        plt.pause(0.5)
+    img = un(img.cpu()).data.numpy()
+    img = img.transpose(1,2,0).clip(0,1)
+    plt.figure()
+    plt.imshow(img)
+    plt.pause(15)
+
+def show_tensor(image:torch.Tensor,show_image = show_image):
     if len(image.size())==3:
         show_image(image)
     elif len(image.size()) == 4:

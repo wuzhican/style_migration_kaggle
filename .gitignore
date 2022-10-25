@@ -1,5 +1,5 @@
 */__pycache__/*
-data/lightning_logs/**
+data/lightning_logs/SMNet
 data/MSNet/**
 checkpoint
 .vscode

@@ -111,7 +111,7 @@ class FWNetModule(pl.LightningModule):
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = 0
         for layer in self.style_grams:
-            if layer in ['layer3_3','layer1_2']:
+            if layer in ['layer1_2','layer2_2']:
                 content_loss += F.mse_loss(
                     transformed_features[layer], content_features[layer])
         content_loss = self.content_weight*content_loss
@@ -124,13 +124,14 @@ class FWNetModule(pl.LightningModule):
         # 风格损失
         style_loss = 0
         for layer in self.style_grams:
-            transformed_gram = gram_matrix(transformed_features[layer])
-            # 是针对一个batch图像的Gram
-            style_gram = self.style_grams[layer]
-            # 是针对一张图像的，所以要扩充style_gram
-            # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
-            style_loss += F.mse_loss(transformed_gram,
-                                style_gram.expand_as(transformed_gram))
+            if layer in ['layer4_3','layer3_3']:
+                transformed_gram = gram_matrix(transformed_features[layer])
+                # 是针对一个batch图像的Gram
+                style_gram = self.style_grams[layer]
+                # 是针对一张图像的，所以要扩充style_gram
+                # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
+                style_loss += F.mse_loss(transformed_gram,
+                                    style_gram.expand_as(transformed_gram))
         style_loss = self.style_weight * style_loss
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss

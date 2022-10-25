@@ -16,5 +16,8 @@ class ImfwNetTester(AbstractTester):
         self.toImg = transforms.ToPILImage()
 
     def run(self):
-        img = utils.load_image('./data/style1.jpg')
+        un = utils.UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+        toimg = transforms.ToPILImage()
+        img = utils.load_image('./data/validation.jpg')
+        # show_tensor(img,lambda x:toimg(un(x)).show())
         show_tensor(img)
