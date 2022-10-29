@@ -31,7 +31,7 @@ class MSNetClassTester(AbstractTester):
             utils.load_image('./data/style4.jpg', shape=(512, 512)),
             **arg
         )
-        train_dataset = loaders.styleLoader(self.root_dir,augment_ratio=int(1e20))
+        train_dataset = loaders.styleLoader(self.root_dir,augment_ratio=999999)
         loader = (
             DataLoader(train_dataset, batch_size=1,num_workers=2,drop_last=True),
         )
