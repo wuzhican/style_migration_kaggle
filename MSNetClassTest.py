@@ -21,7 +21,7 @@ class MSNetClassTester(AbstractTester):
             'style_weight':1e6,
             'content_weight':1,
             'automatic_optimization':False,
-            'train_epochs':50
+            'train_epochs':500
         }
         for key in self.train_arg:
             if key in args.keys():
