@@ -38,20 +38,20 @@ def load_image(image_path, shape=None):
     image = image[:3, :, :].unsqueeze(dim=0)
     return image
 
-def show_image(img):
+def show_image(img,title=None):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
     img = un(img.cpu()).data.numpy()
     img = img.transpose(1,2,0).clip(0,1)
-    plt.figure()
+    plt.figure(title)
     plt.imshow(img)
     plt.pause(0.01)
 
-def show_tensor(image:torch.Tensor,show_image = show_image):
+def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
     if len(image.size())==3:
-        show_image(image)
+        show_image(image,title)
     elif len(image.size()) == 4:
         for i in range(image.size()[0]):
-            show_image(image[i])
+            show_image(image[i],str(title)+'_%s'%(i))
     else:
         raise ValueError("the tensor size is not in [3D,4D]")
 

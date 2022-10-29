@@ -20,20 +20,23 @@ models_choice_from = [
     "ImfwNet",
     "SMNet"
 ]
+default_args = [
+    ['--model',str,'DeeplabUpsampleModel'],
+    ['--learning_rate',float,1e-3],
+    ['--root_dir',str,root_dir],
+    ['--data_save_root',str,root_dir],
+    ['--style_image_path',str,style_image_path],
+    ['--batch_size',int,batch_size],
+    ['--style_weight',float,1e3],
+    ['--content_weight',float,1],
+    ['--tv_weight',float,1e-3],
+]
     
 
 parser = ArgumentParser()
-parser.add_argument("--model", type=str, default='DeeplabUpsampleModel')
-parser.add_argument("--learning_rate", type=float, default=1e-3)
 parser.add_argument("--auto_resume", action="store_true")
-parser.add_argument("--resume_path", type=str, default=None)
-parser.add_argument("--root_dir", type=str, default=root_dir)
-parser.add_argument("--data_save_root", type=str, default=root_dir)
-parser.add_argument("--style_image_path", type=str, default=style_image_path)
-parser.add_argument("--batch_size", type=int, default=batch_size)
-parser.add_argument("--style_weight", type=float, default=1e3)
-parser.add_argument("--content_weight", type=float, default=1)
-parser.add_argument("--tv_weight", type=float, default=1e-3)
+for arg in default_args:
+    parser.add_argument(arg[0],type=arg[1],default=arg[2])
 
 # parser = models.DeeplabUpsampleModel.add_model_specific_args(parser)
 parser = pl.Trainer.add_argparse_args(parser)
