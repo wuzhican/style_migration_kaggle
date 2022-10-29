@@ -36,7 +36,7 @@ class MSNetClassTester(AbstractTester):
             DataLoader(train_dataset, batch_size=1,num_workers=2,drop_last=True),
         )
         logger = TensorBoardLogger("./data/lightning_logs", name="SMNet")
-        trainer = pl.Trainer(logger=logger,log_every_n_steps=1,gpus=1)
+        trainer = pl.Trainer(logger=logger,log_every_n_steps=1,gpus=1,max_steps=9000)
         trainer.fit(module, *loader)
         
     def run(self,**args):
