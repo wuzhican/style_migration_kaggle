@@ -20,7 +20,7 @@ class SMNet(pl.LightningModule):
             'automatic_optimization': True,
             'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
             'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-            'train_epochs': 1000
+            'train_epochs': 1000,
         }
         self.vgg = models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
