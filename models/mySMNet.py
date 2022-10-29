@@ -21,11 +21,11 @@ class SMNet(pl.LightningModule):
     
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
-        for key,value in self.args_v:
+        for key in self.args_v:
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
-                setattr(self,key,value)
+                setattr(self,key,self.args_v[key])
         self.vgg = models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
         self.feature_net = IntermediateLayerGetter(self.vgg.features, {
