@@ -51,7 +51,7 @@ def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
         show_image(image,title)
     elif len(image.size()) == 4:
         for i in range(image.size()[0]):
-            show_image(image[i],str(title)+'_%s'%(i))
+            show_image(image[i],title+'_%s'%(i))
     else:
         raise ValueError("the tensor size is not in [3D,4D]")
 
