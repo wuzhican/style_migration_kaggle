@@ -21,6 +21,7 @@ class SMNet(pl.LightningModule):
             'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
             'train_epochs': 1000}
         for key in args_v.keys():
+            print("unpack arg %s"%(key))
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
