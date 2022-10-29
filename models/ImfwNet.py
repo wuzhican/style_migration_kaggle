@@ -84,6 +84,7 @@ class FWNetModule(pl.LightningModule):
             '8':'layer2_2',
             '15':'layer3_3',
             '22':'layer4_3',
+            '29':'layer5_3'
         })
         # 内容表示的图层,均使用经过relu激活后的输出
         self.style_features = self.feature_net(self.style)
@@ -111,7 +112,7 @@ class FWNetModule(pl.LightningModule):
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = 0
         for layer in self.style_grams:
-            if layer in ['layer1_2','layer2_2']:
+            if layer in ['layer5_3']:
                 content_loss += F.mse_loss(
                     transformed_features[layer], content_features[layer])
         content_loss = self.content_weight*content_loss
@@ -124,7 +125,7 @@ class FWNetModule(pl.LightningModule):
         # 风格损失
         style_loss = 0
         for layer in self.style_grams:
-            if layer in ['layer4_3','layer3_3']:
+            if layer in ['layer1_2','layer2_2','layer3_3','layer4_3','layer5_3']:
                 transformed_gram = gram_matrix(transformed_features[layer])
                 # 是针对一个batch图像的Gram
                 style_gram = self.style_grams[layer]
