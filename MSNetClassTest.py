@@ -27,7 +27,6 @@ class MSNetClassTester(AbstractTester):
             if key in args.keys():
                 arg[key] = args[key]
         
-        print(arg)
         module = models.SMNet(
             utils.load_image('./data/style4.jpg', shape=(512, 512)),
             **arg

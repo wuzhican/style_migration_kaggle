@@ -23,7 +23,6 @@ class SMNet(pl.LightningModule):
             'train_epochs': 1000,
         }
         for key in args_v.keys():
-            print("unpack arg %s"%(key))
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
