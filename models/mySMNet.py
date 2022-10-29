@@ -13,6 +13,7 @@ class SMNet(pl.LightningModule):
     
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
+        self.style = style
         args_v = {
             'content_weight': 1,
             'style_weight': 1e3,
