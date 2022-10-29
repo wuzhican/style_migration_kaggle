@@ -70,7 +70,8 @@ class SMNet(pl.LightningModule):
     
     def on_train_batch_end(self, outputs, batch, batch_idx: int, unused: int = 0) -> None:
         if self.epochs%self.train_epochs == self.train_epochs - 1:
-            utils.show_tensor(self.input_image,"epoch %s"%(int((self.epochs+1)/self.train_epochs)))
+            title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
+            utils.show_tensor(self.input_image,title)
     
     def configure_optimizers(self):
         opt = torch.optim.Adam([self.input_image])
