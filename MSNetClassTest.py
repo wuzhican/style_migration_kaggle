@@ -17,16 +17,17 @@ class MSNetClassTester(AbstractTester):
         self.style_layers = ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3']
         
     def train(self,**args):
-        arg = {}
+        arg = {
+            'style_weight':1e6,
+            'content_weight':1,
+            'automatic_optimization':False,
+            'max_steps':6000
+        }
         for key in self.train_arg:
             if key in args.keys():
                 arg[key] = args[key]
         module = models.SMNet(
             utils.load_image('./data/style4.jpg', shape=(512, 512)),
-            style_weight=1e6,
-            content_weight=1,
-            automatic_optimization=False,
-            max_steps=6000,
             **arg
         )
         train_dataset = loaders.styleLoader(self.root_dir,augment_ratio=1)
