@@ -13,6 +13,7 @@ class SMNet(pl.LightningModule):
     
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
+        print(args)
         args_vector = {
             'content_weight': 1,
             'style_weight': 1e3,
@@ -21,8 +22,6 @@ class SMNet(pl.LightningModule):
             'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
             'train_epochs': 1000
         }
-        for i in args:
-            print(i)
         self.vgg = models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
         self.feature_net = IntermediateLayerGetter(self.vgg.features, {
