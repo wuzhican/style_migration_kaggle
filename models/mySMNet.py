@@ -11,21 +11,20 @@ import pytorch_lightning as pl
 
 class SMNet(pl.LightningModule):    
     
-    args_v = {
-        'content_weight': 1,
-        'style_weight': 1e3,
-        'automatic_optimization': True,
-        'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'train_epochs':1000}
-    
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
-        for key in self.args_v.keys():
+        args_v = {
+            'content_weight': 1,
+            'style_weight': 1e3,
+            'automatic_optimization': True,
+            'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
+            'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
+            'train_epochs': 1000}
+        for key in args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
-                setattr(self,key,self.args_v[key])
+                setattr(self,key,args_v[key])
         self.vgg = models.vgg16(pretrained=True)
         self.input_image = nn.Parameter(torch.rand(style.size()).data)
         self.feature_net = IntermediateLayerGetter(self.vgg.features, {
