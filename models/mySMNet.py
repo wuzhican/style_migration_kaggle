@@ -21,7 +21,7 @@ class SMNet(pl.LightningModule):
     
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
-        for key in self.args_v:
+        for key in self.args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
