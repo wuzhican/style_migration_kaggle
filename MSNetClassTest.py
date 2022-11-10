@@ -28,7 +28,7 @@ class MSNetClassTester(AbstractTester):
                 arg[key] = args[key]
         
         module = models.SMNet(
-            utils.load_image('./data/style4.jpg', shape=(512, 512)),
+            utils.load_image('./data/style5.jpg', shape=(512, 512)),
             **arg
         )
         train_dataset = loaders.styleLoader(self.root_dir,augment_ratio=9001)
