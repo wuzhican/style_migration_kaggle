@@ -15,8 +15,8 @@ class SMNet(pl.LightningModule):
         super().__init__()
         self.style = style
         args_v = {
-            'content_weight': 1,
-            'style_weight': 1e3,
+            'content_weight': 1e3,
+            'style_weight': 1,
             'automatic_optimization': True,
             'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
             'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
