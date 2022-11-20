@@ -20,7 +20,7 @@ class SMNet(pl.LightningModule):
             'automatic_optimization': True,
             'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
             'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-            'train_epochs': 1000,
+            'train_epochs': 50,
         }
         for key in args_v.keys():
             if key in args.keys():
@@ -52,7 +52,7 @@ class SMNet(pl.LightningModule):
         for layer in style_features:
             if layer in self.content_layers:
                 content_loss += F.mse_loss(
-                    input_features[layer], content_features[layer])
+                    input_features[layer].expand_as(content_features[layer]), content_features[layer])
         content_loss = self.content_weight*content_loss
         style_loss = 0
         for layer in style_features:
@@ -71,7 +71,8 @@ class SMNet(pl.LightningModule):
     def on_train_batch_end(self, outputs, batch, batch_idx: int, unused: int = 0) -> None:
         if self.epochs%self.train_epochs == self.train_epochs - 1:
             title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
-            utils.show_tensor(self.input_image,title=title)
+            # utils.show_tensor(self.input_image,title=title)
+            utils.show_tensor(self.input_image,utils.show_pil,title)
     
     def configure_optimizers(self):
         opt = torch.optim.Adam([self.input_image])
