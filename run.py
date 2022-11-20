@@ -30,6 +30,7 @@ default_args = [
     ['--style_weight',float,1e3],
     ['--content_weight',float,1],
     ['--tv_weight',float,1e-3],
+    ['--resume_path',str,data_save_root],
 ]
     
 
@@ -79,9 +80,11 @@ else:
             load_image(style_image_path,shape=(512,512)),
             style_weight=style_weight,
             content_weight=content_weight,
-            automatic_optimization=False
+            automatic_optimization=False,
+            content_layers = ['layer2_2'],
+            style_layers = ['layer3_3', 'layer4_3']
         )
-        train_dataset = loaders.styleLoader(root_dir,augment_ratio=1)
+        train_dataset = loaders.styleLoader(root_dir,augment_ratio=int(1e9))
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
         )
@@ -91,9 +94,10 @@ else:
             'logger':logger
         }
 
-if arg_v['auto_resume'] or arg_v['resume_path']:
-    models_args['resume_from_checkpoint'] = GetResumePath(data_save_root if not arg_v['resume_path'] else arg_v['resume_path'])
-    hooks=[]
+# TODO: 修复auto resume逻辑
+# if arg_v['auto_resume'] or arg_v['resume_path']:
+#     models_args['resume_from_checkpoint'] = GetResumePath(data_save_root if not arg_v['resume_path'] else arg_v['resume_path'])
+#     hooks=[]
 
 if __name__ == '__main__':
     trainer = pl.Trainer.from_argparse_args(args, callbacks=hooks, default_root_dir=data_save_root,**models_args)
