@@ -27,9 +27,9 @@ default_args = [
     ['--data_save_root',str,root_dir],
     ['--style_image_path',str,style_image_path],
     ['--batch_size',int,batch_size],
-    ['--style_weight',float,1e3],
-    ['--content_weight',float,1],
-    ['--tv_weight',float,1e-3],
+    ['--style_weight',float,1e1],
+    ['--content_weight',float,1e3],
+    ['--tv_weight',float,1e-6],
     ['--resume_path',str,data_save_root],
 ]
     
