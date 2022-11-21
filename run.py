@@ -59,7 +59,7 @@ if arg_v['model'] not in models_choice_from:
 else:
     if arg_v['model'] == "ImfwNet":
         module = models.FWNetModule(
-            load_image(style_image_path,shape=(256,256)),
+            load_image(style_image_path,shape=(512,512)),
             style_weight=style_weight,
             content_weight=content_weight,
             tv_weight=tv_weight,
