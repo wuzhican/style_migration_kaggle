@@ -175,8 +175,8 @@ class FWNetModule(pl.LightningModule):
         torch.cuda.empty_cache()
         if self.epochs%self.train_epochs == self.train_epochs - 1:
             title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
-            target = self.fwNet(self.test_img).clamp(0,1)
-            utils.show_tensor(target,utils.show_pil,title)
+            target = self.fwNet(self.test_img)
+            utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
         # print("start configure_optimizers")
