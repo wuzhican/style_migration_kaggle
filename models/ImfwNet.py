@@ -122,6 +122,7 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
+        self.epochs += 1
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.style_features = self.feature_net(self.style)
@@ -168,7 +169,6 @@ class FWNetModule(pl.LightningModule):
         self.log('_tv_loss', _tv_loss, prog_bar=True)
         self.log('content_loss', content_loss, prog_bar=True)
         opt.step()
-        self.epochs += 1
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
