@@ -123,6 +123,8 @@ class FWNetModule(pl.LightningModule):
     def training_step(self, batch,batch_index):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
+            self.feature_net = self.feature_net.to(self.device)
+            self.fwNet = self.fwNet.to(self.device)
             self.style_features = self.feature_net(self.style)
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         opt = self.optimizers()
