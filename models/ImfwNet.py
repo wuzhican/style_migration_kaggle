@@ -78,7 +78,6 @@ class FWNetModule(pl.LightningModule):
         'automatic_optimization': False,
         'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
         'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'epochs':1,
         'train_epochs':100,
         'test_image_path':'./data/MSNet/train/trans.jpg',
     }
@@ -122,7 +121,6 @@ class FWNetModule(pl.LightningModule):
         return parent_parser
     
     def training_step(self, batch,batch_index):
-        self.epochs += 1
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.style_features = self.feature_net(self.style)
@@ -172,11 +170,10 @@ class FWNetModule(pl.LightningModule):
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
-        print('epochs: %s,batch_index: %s'%(self.epochs,batch_idx))
-        if self.epochs%self.train_epochs == self.train_epochs - 1:
+        if batch_idx%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
                 test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
-                title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
+                title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
                 target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
     
