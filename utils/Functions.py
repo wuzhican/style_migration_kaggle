@@ -40,21 +40,20 @@ def load_image(image_path, shape=None):
 
 def show_pil(img,title=None):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+    print(title)
     to_img = transforms.ToPILImage()
-    img = img.clone().cpu()
     img = to_img(un(img))
     img.show()
     
 
 def show_image(img,title=None):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
-    img = img.clone().cpu()
     img = un(img).data.numpy()
     img = img.transpose(1,2,0).clip(0,1)
     print(title)
     plt.figure(title)
     plt.imshow(img)
-    # plt.pause(0.01)
+    plt.pause(0.01)
 
 def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
     with torch.no_grad():
