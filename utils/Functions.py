@@ -42,30 +42,31 @@ def show_pil(img,title=None):
     un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
     print(title)
     to_img = transforms.ToPILImage()
-    img = img.clamp(0,1)
+    img = img.clone().detach().cpu().clamp(0,1)
     img = to_img(un(img))
     img.show()
     
 
 def show_image(img,title=None):
     un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
-    img = img.clamp(0,1)
+    img = img.clone().detach().cpu().clamp(0,1)
     img = un(img).data.numpy()
     img = img.transpose(1,2,0)
     print(title)
     plt.figure(title)
     plt.imshow(img)
-    plt.pause(0.01)
+    # plt.pause(0.01)
 
 def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
-    image_ = image.clone().detach().cpu()
-    if len(image_.size())==3:
-        show_image(image_,title)
-    elif len(image_.size()) == 4:
-        for i in range(image_.size()[0]):
-            show_image(image_[i],title+'_%s'%(i))
-    else:
-        raise ValueError("the tensor size is not in [3D,4D]")
+    with torch.no_grad():
+        image_ = image.clone().detach().cpu()
+        if len(image_.size())==3:
+            show_image(image_,title)
+        elif len(image_.size()) == 4:
+            for i in range(image_.size()[0]):
+                show_image(image_[i],title+'_%s'%(i))
+        else:
+            raise ValueError("the tensor size is not in [3D,4D]")
 
 class UnNormalize(object):
     def __init__(self,mean,std):
