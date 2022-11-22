@@ -172,11 +172,11 @@ class FWNetModule(pl.LightningModule):
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
-        if batch_idx%self.train_epochs == self.train_epochs - 1:
-            with torch.no_grad():
-                test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
-                title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
-                target = self.fwNet(test_img)
+        # if batch_idx%self.train_epochs == self.train_epochs - 1:
+            # with torch.no_grad():
+                # test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
+                # title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
+                # target = self.fwNet(test_img)
                 # utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
