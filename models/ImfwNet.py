@@ -79,7 +79,7 @@ class FWNetModule(pl.LightningModule):
         'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
         'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
         'epochs':100,
-        'train_epochs':0,
+        'train_epochs':1,
         'test_image_path':'./data/MSNet/train/trans.jpg',
     }
     
