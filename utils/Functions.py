@@ -57,7 +57,7 @@ def show_image(img,title=None):
 
 def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
     with torch.no_grad():
-        image_ = image.clone().cpu()
+        image_ = image.clone().detach().cpu()
         if len(image_.size())==3:
             show_image(image_,title)
         elif len(image_.size()) == 4:
