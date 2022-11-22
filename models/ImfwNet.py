@@ -165,7 +165,7 @@ class FWNetModule(pl.LightningModule):
         loss = style_loss + content_loss + _tv_loss
         if batch_index%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
-                test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
+                test_img = self.trans(Image.open(self.test_image_path))
                 title = 'epoch %s'%(int((batch_index+1)/self.train_epochs))
                 target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
