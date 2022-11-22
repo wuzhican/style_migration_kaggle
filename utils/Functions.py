@@ -57,14 +57,15 @@ def show_image(img,title=None):
     # plt.pause(0.01)
 
 def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
-    image_ = image.clone().cpu()
-    if len(image_.size())==3:
-        show_image(image_,title)
-    elif len(image_.size()) == 4:
-        for i in range(image_.size()[0]):
-            show_image(image_[i],title+'_%s'%(i))
-    else:
-        raise ValueError("the tensor size is not in [3D,4D]")
+    with torch.no_grad():
+        image_ = image.clone().cpu()
+        if len(image_.size())==3:
+            show_image(image_,title)
+        elif len(image_.size()) == 4:
+            for i in range(image_.size()[0]):
+                show_image(image_[i],title+'_%s'%(i))
+        else:
+            raise ValueError("the tensor size is not in [3D,4D]")
 
 class UnNormalize(object):
     def __init__(self,mean,std):
