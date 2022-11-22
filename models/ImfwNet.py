@@ -78,8 +78,8 @@ class FWNetModule(pl.LightningModule):
         'automatic_optimization': False,
         'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
         'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'epochs':100,
-        'train_epochs':1,
+        'epochs':1,
+        'train_epochs':100,
         'test_image_path':'./data/MSNet/train/trans.jpg',
     }
     
@@ -168,7 +168,7 @@ class FWNetModule(pl.LightningModule):
         self.log('_tv_loss', _tv_loss, prog_bar=True)
         self.log('content_loss', content_loss, prog_bar=True)
         opt.step()
-        self.train_epochs += 1
+        self.epochs += 1
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
