@@ -39,7 +39,7 @@ def load_image(image_path, shape=None):
     return image
 
 def show_pil(img,title=None):
-    un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+    un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
     print(title)
     to_img = transforms.ToPILImage()
     img = img.clone().detach().cpu().clamp(0,1)
@@ -48,7 +48,7 @@ def show_pil(img,title=None):
     
 
 def show_image(img,title=None):
-    un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+    un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
     img = img.clone().detach().cpu().clamp(0,1)
     img = un(img).data.numpy()
     img = img.transpose(1,2,0)
@@ -79,7 +79,6 @@ class UnNormalize(object):
         :param tensor: tensor image of size (B,C,H,W) to be un-normalized
         :return: UnNormalized image
         """
-        tensor
         if len(tensor.size())==3:
             for i in range(3):
                 tensor[i] = tensor[i] * self.std[i] + self.mean[i]
