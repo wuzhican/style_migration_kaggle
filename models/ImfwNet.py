@@ -175,7 +175,7 @@ class FWNetModule(pl.LightningModule):
                 test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
                 title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
                 target = self.fwNet(test_img)
-                utils.show_tensor(target,utils.show_image,title)
+                # utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
         # print("start configure_optimizers")
