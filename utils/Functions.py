@@ -79,16 +79,23 @@ class UnNormalize(object):
         :param tensor: tensor image of size (B,C,H,W) to be un-normalized
         :return: UnNormalized image
         """
+        res = None
         if len(tensor.size())==3:
+            tmp = []
             for i in range(3):
-                tensor[i] = tensor[i] * self.std[i] + self.mean[i]
+                tmp.append(tensor[i] * self.std[i] + self.mean[i])
+            res = torch.stack(tmp)
         elif len(tensor.size()) == 4:
+            tmp1 = []
             for i in range(tensor.size()[0]):
+                tmp2 = []
                 for j in range(3):
-                    tensor[i][j] = tensor[i][j] * self.std[j] + self.mean[j]
+                    tmp2.append(tensor[i][j] * self.std[j] + self.mean[j])
+                tmp1.append(torch.stack(tmp2))
+            res = torch.stack(tmp1)
         else:
             print('the tensor shape is not correct')
-        return tensor
+        return res
 
 # 定义一个将标准化后的图像转化为便于利用matplotlib可视化的函数
 def im_convert(tensor):
