@@ -40,7 +40,7 @@ class styleLoader(data.Dataset):
         return img
     
     def __len__(self):
-        return self.augment_ratio*len(self.images)
+        return int(self.augment_ratio*len(self.images))
         
             
         
