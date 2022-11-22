@@ -128,7 +128,7 @@ class FWNetModule(pl.LightningModule):
         opt = self.optimizers()
         opt.zero_grad()
         x = batch
-        transformed_images = self.fwNet(x).clamp(0,1)
+        transformed_images = self.fwNet(x)
         
         transformed_features = self.feature_net(transformed_images)
         content_features = self.feature_net(x)
