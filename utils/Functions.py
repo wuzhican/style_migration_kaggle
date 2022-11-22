@@ -42,12 +42,14 @@ def show_pil(img,title=None):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
     print(title)
     to_img = transforms.ToPILImage()
+    img = img.clone().detach().cpu()
     img = to_img(un(img))
     img.show()
     
 
 def show_image(img,title=None):
     un = UnNormalize((0.229, 0.224, 0.225),(0.485, 0.456, 0.406))
+    img = img.clone().detach().cpu()
     img = un(img).data.numpy()
     img = img.transpose(1,2,0).clip(0,1)
     print(title)
