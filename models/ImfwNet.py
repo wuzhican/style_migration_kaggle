@@ -163,11 +163,11 @@ class FWNetModule(pl.LightningModule):
         style_loss = style_loss / len(self.style_layers)
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss
-        self.manual_backward(loss,retain_graph = True)
         self.log('train_loss', loss, prog_bar=True)
         self.log('style_loss', style_loss, prog_bar=True)
         self.log('_tv_loss', _tv_loss, prog_bar=True)
         self.log('content_loss', content_loss, prog_bar=True)
+        self.manual_backward(loss,retain_graph = True)
         opt.step()
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
