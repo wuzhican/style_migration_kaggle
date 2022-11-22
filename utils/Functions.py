@@ -49,15 +49,16 @@ def show_pil(img,title=None):
     
 
 def show_image(img,title=None):
-    img = img.clone().detach().cpu()
-    un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
-    img = img.clamp(0,1)
-    img = un(img).data.numpy()
-    img = img.transpose(1,2,0)
-    print(title)
-    plt.figure(title)
-    plt.imshow(img)
-    plt.pause(0.01)
+    with torch.no_grad():
+        img = img.clone().detach().cpu()
+        un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
+        img = img.clamp(0,1)
+        img = un(img).data.numpy()
+        img = img.transpose(1,2,0)
+        print(title)
+        plt.figure(title)
+        plt.imshow(img)
+        plt.pause(0.01)
 
 def show_tensor(image:torch.Tensor,show_image = show_image,title=None):
     if len(image.size())==3:
