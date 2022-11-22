@@ -138,9 +138,9 @@ class FWNetModule(pl.LightningModule):
         content_loss = 0
         for layer in self.style_grams:
             if layer in self.content_layers:
-                content_loss += F.mse_loss(
+                content_loss += self.content_weight * F.mse_loss(
                     transformed_features[layer], content_features[layer])
-        content_loss = self.content_weight * content_loss / len(self.content_layers)
+        content_loss =  content_loss / len(self.content_layers)
 
         # 全变分损失
         # total variation图像水平和垂直平移一个像素，与原图相减
@@ -156,9 +156,9 @@ class FWNetModule(pl.LightningModule):
                 style_gram = self.style_grams[layer]
                 # 是针对一张图像的，所以要扩充style_gram
                 # 并计算计算预测(transformed_gram)和标签(style_gram)之间的损失
-                style_loss += F.mse_loss(transformed_gram,
+                style_loss += self.style_weight * F.mse_loss(transformed_gram,
                                     style_gram.expand_as(transformed_gram))
-        style_loss = self.style_weight  * style_loss / len(self.style_layers)
+        style_loss = style_loss / len(self.style_layers)
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss
         self.manual_backward(loss,retain_graph = True)
