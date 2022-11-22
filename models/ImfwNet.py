@@ -105,13 +105,12 @@ class FWNetModule(pl.LightningModule):
             '22':'layer4_3',
             '29':'layer5_3'
         })
-        trans = transforms.Compose([
+        self.trans = transforms.Compose([
                 transforms.Resize((512,512)),
                 transforms.CenterCrop(512),
                 transforms.ToTensor(),  # 转为0-1的张量
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
             ])
-        self.test_img = trans(Image.open(self.test_image_path)).cuda()
         
         # 内容表示的图层,均使用经过relu激活后的输出
         self.style_features = self.feature_net(self.style)
@@ -174,9 +173,11 @@ class FWNetModule(pl.LightningModule):
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
         if self.epochs%self.train_epochs == self.train_epochs - 1:
-            title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
-            target = self.fwNet(self.test_img)
-            utils.show_tensor(target,utils.show_image,title)
+            with torch.no_grad():
+                self.test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
+                title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
+                target = self.fwNet(self.test_img)
+                utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
         # print("start configure_optimizers")
