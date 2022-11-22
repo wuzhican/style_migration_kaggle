@@ -174,9 +174,9 @@ class FWNetModule(pl.LightningModule):
         torch.cuda.empty_cache()
         if self.epochs%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
-                self.test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
+                test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
                 title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
-                target = self.fwNet(self.test_img)
+                target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
