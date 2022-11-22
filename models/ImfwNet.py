@@ -172,6 +172,7 @@ class FWNetModule(pl.LightningModule):
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
+        print('epochs: %s,batch_index: %s'%(self.epochs,batch_idx))
         if self.epochs%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
                 test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
