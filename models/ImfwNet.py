@@ -36,50 +36,41 @@ class ImfwNet(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
-        # downsample = MyModuleList([
-        #     nn.ReplicationPad2d(4),
-        #     nn.Conv2d(3, 32, kernel_size=9, stride=1),
-        #     nn.InstanceNorm2d(32, affine=True),
-        #     nn.ReLU(),
-        #     nn.Conv2d(32, 64, kernel_size=3, stride=2),
-        #     nn.InstanceNorm2d(64, affine=True),
-        #     nn.ReLU(),
-        #     nn.ReflectionPad2d(padding=1),
-        #     nn.Conv2d(64, 128, kernel_size=3, stride=2),
-        #     nn.InstanceNorm2d(128, affine=True),
-        #     nn.ReLU()
-        # ])
-        # res_blocks = MyModuleList([
-        #     ResidualBlock(128),
-        #     ResidualBlock(128),
-        #     ResidualBlock(128),
-        #     ResidualBlock(128),
-        #     ResidualBlock(128)
-        # ])
-        # upsample = MyModuleList([
-        #     nn.ConvTranspose2d(128, 64, kernel_size=3,
-        #                        stride=2, padding=1, output_padding=1),
-        #     nn.InstanceNorm2d(64, affine=True),
-        #     nn.ReLU(),
-        #     nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2,
-        #                        padding=1, output_padding=1),
-        #     nn.InstanceNorm2d(32, affine=True),
-        #     nn.ReLU(),
-        #     nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
-        # ])
-        # self.model = MyModuleList([
-        #     downsample,
-        #     res_blocks,
-        #     upsample
-        # ])
+        downsample = MyModuleList([
+            nn.ReplicationPad2d(4),
+            nn.Conv2d(3, 32, kernel_size=9, stride=1),
+            nn.InstanceNorm2d(32, affine=True),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, kernel_size=3, stride=2),
+            nn.InstanceNorm2d(64, affine=True),
+            nn.ReLU(),
+            nn.ReflectionPad2d(padding=1),
+            nn.Conv2d(64, 128, kernel_size=3, stride=2),
+            nn.InstanceNorm2d(128, affine=True),
+            nn.ReLU()
+        ])
+        res_blocks = MyModuleList([
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128)
+        ])
+        upsample = MyModuleList([
+            nn.ConvTranspose2d(128, 64, kernel_size=3,
+                               stride=2, padding=1, output_padding=1),
+            nn.InstanceNorm2d(64, affine=True),
+            nn.ReLU(),
+            nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2,
+                               padding=1, output_padding=1),
+            nn.InstanceNorm2d(32, affine=True),
+            nn.ReLU(),
+            nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
+        ])
         self.model = MyModuleList([
-            nn.Conv2d(3,128,1),
-            ResidualBlock(128),
-            ResidualBlock(128),
-            ResidualBlock(128),
-            ResidualBlock(128),
-            ResidualBlock(128),
-            nn.Conv2d(128,3,1)
+            downsample,
+            res_blocks,
+            upsample
         ])
 
     def forward(self, x):    
