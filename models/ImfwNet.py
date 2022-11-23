@@ -9,24 +9,14 @@ from loaders import *
 from utils import *
 import utils
 
-class MyModuleList(nn.ModuleList):
-    def __init__(self, modules) -> None:
-        super().__init__(modules)
-    
-    def forward(self,x):
-        for i in range(self.__len__()):
-            x = self.__getitem__(i)(x)
-        return x
-
 class ResidualBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
-        self.conv = MyModuleList([
+        self.conv = nn.Sequential(
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1)
-        ])
-        self.relu = nn.ReLU()
+        )
 
     def forward(self, x):
         return F.relu(self.conv(x)+x)
@@ -35,7 +25,7 @@ class ImfwNet(pl.LightningModule):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
-        downsample = MyModuleList([
+        downsample = nn.Sequential(
             nn.Conv2d(3, 32, 9, 1, 1),
             nn.InstanceNorm2d(32, affine=True),
             nn.ReLU(),
@@ -45,15 +35,15 @@ class ImfwNet(pl.LightningModule):
             nn.Conv2d(64, 128, 3, 2),
             nn.InstanceNorm2d(128, affine=True),
             nn.ReLU()
-        ])
-        res_blocks = MyModuleList([
+        )
+        res_blocks = nn.Sequential(
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128)
-        ])
-        upsample = MyModuleList([
+        )
+        upsample = nn.Sequential(
             nn.ConvTranspose2d(128, 64, 3, 2, 1, 1),
             nn.InstanceNorm2d(64, affine=True),
             nn.ReLU(),
@@ -61,7 +51,7 @@ class ImfwNet(pl.LightningModule):
             nn.InstanceNorm2d(32, affine=True),
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, 9, 1)
-        ])
+        )
         self.model = nn.Sequential(
             downsample,
             res_blocks,
