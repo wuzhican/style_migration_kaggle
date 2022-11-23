@@ -72,7 +72,7 @@ class ImfwNet(pl.LightningModule):
         ])
 
     def forward(self, x):    
-        return self.model(x)
+        return F.relu(self.model(x))
         
 
 class FWNetModule(pl.LightningModule):
