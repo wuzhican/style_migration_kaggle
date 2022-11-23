@@ -13,7 +13,7 @@ import utils
 class ResidualBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
-        self.conv = nn.Sequential(
+        self.conv = nn.ModuleList(
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1)
@@ -27,7 +27,7 @@ class ImfwNet(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
-        downsample = nn.Sequential(
+        downsample = nn.ModuleList(
             nn.ReplicationPad2d(4),
             nn.Conv2d(3, 32, kernel_size=9, stride=1),
             nn.InstanceNorm2d(32, affine=True),
@@ -40,14 +40,14 @@ class ImfwNet(nn.Module):
             nn.InstanceNorm2d(128, affine=True),
             nn.ReLU()
         )
-        res_blocks = nn.Sequential(
+        res_blocks = nn.ModuleList(
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128)
         )
-        upsample = nn.Sequential(
+        upsample = nn.ModuleList(
             nn.ConvTranspose2d(128, 64, kernel_size=3,
                                stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(64, affine=True),
@@ -58,7 +58,7 @@ class ImfwNet(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
         )
-        self.model = nn.Sequential(
+        self.model = nn.ModuleList(
             downsample,
             res_blocks,
             upsample
