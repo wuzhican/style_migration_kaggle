@@ -67,7 +67,7 @@ class ImfwNet(pl.LightningModule):
             nn.Conv2d(3,128,1),
             nn.InstanceNorm2d(128, affine=True),
             # nn.Conv2d(128,3,1),
-            nn.ConvTranspose2d(128,3,1),
+            # nn.ConvTranspose2d(128,3,1),
             nn.ReLU()
         )
 
