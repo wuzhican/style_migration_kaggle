@@ -9,15 +9,23 @@ from loaders import *
 from utils import *
 import utils
 
+class MyModuleList(nn.ModuleList):
+    def __init__(self, modules) -> None:
+        super().__init__(modules)
+    
+    def forward(self,x):
+        for i in range(self.__len__()):
+            x = self.__getitem__(i)(x)
+        return x
 
 class ResidualBlock(nn.Module):
     def __init__(self, channels):
         super().__init__()
-        self.conv = nn.ModuleList(
+        self.conv = MyModuleList([
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
             nn.Conv2d(channels, channels, kernel_size=3, stride=1, padding=1)
-        )
+        ])
 
     def forward(self, x):
         return F.relu(self.conv(x)+x)
@@ -27,7 +35,7 @@ class ImfwNet(nn.Module):
     def __init__(self) -> None:
         super().__init__()
         # 下采样
-        downsample = nn.ModuleList(
+        downsample = MyModuleList([
             nn.ReplicationPad2d(4),
             nn.Conv2d(3, 32, kernel_size=9, stride=1),
             nn.InstanceNorm2d(32, affine=True),
@@ -39,15 +47,15 @@ class ImfwNet(nn.Module):
             nn.Conv2d(64, 128, kernel_size=3, stride=2),
             nn.InstanceNorm2d(128, affine=True),
             nn.ReLU()
-        )
-        res_blocks = nn.ModuleList(
+        ])
+        res_blocks = MyModuleList([
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128),
             ResidualBlock(128)
-        )
-        upsample = nn.ModuleList(
+        ])
+        upsample = MyModuleList([
             nn.ConvTranspose2d(128, 64, kernel_size=3,
                                stride=2, padding=1, output_padding=1),
             nn.InstanceNorm2d(64, affine=True),
@@ -57,12 +65,12 @@ class ImfwNet(nn.Module):
             nn.InstanceNorm2d(32, affine=True),
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
-        )
-        self.model = nn.ModuleList(
+        ])
+        self.model = MyModuleList([
             downsample,
             res_blocks,
             upsample
-        )
+        ])
 
     def forward(self, x):
         return self.model(x)
