@@ -64,9 +64,9 @@ class ImfwNet(pl.LightningModule):
             nn.ConvTranspose2d(32, 3, 9, 1)
         ])
         self.model = MyModuleList([
-            nn.Conv2d(3,128,9,2),
+            nn.Conv2d(3,128,3),
             nn.InstanceNorm2d(128, affine=True),
-            nn.ConvTranspose2d(128,3,9,2,1,1),
+            nn.ConvTranspose2d(128,3,3),
             nn.ReLU()
         ])
 
