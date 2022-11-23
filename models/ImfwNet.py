@@ -122,7 +122,7 @@ class FWNetModule(pl.LightningModule):
             self.style_features = self.feature_net(self.style)
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         x = batch
-        transformed_images = self.fwNet(x)
+        transformed_images = self.fwNet(x).clamp(0,1)
         
         transformed_features = self.feature_net(transformed_images)
         content_features = self.feature_net(x)
