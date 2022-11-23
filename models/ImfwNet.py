@@ -63,13 +63,13 @@ class ImfwNet(pl.LightningModule):
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, 9, 1)
         ])
-        self.model = MyModuleList([
+        self.model = nn.Sequential(
             nn.Conv2d(3,128,1),
             nn.InstanceNorm2d(128, affine=True),
             nn.Conv2d(128,3,1),
             # nn.ConvTranspose2d(128,3,1),
             # nn.ReLU()
-        ])
+        )
 
     def forward(self, x):    
         return F.relu(self.model(x))
