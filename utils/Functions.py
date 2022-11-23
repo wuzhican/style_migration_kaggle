@@ -39,22 +39,20 @@ def load_image(image_path, shape=None):
     return image
 
 def show_pil(img,title=None):
+    print(title)
     img = img.clone().detach().cpu()
     un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
-    print(title)
     to_img = transforms.ToPILImage()
-    img = img.clamp(0,1)
-    img = to_img(un(img))
+    img = to_img(un(img).clamp(0,1))
     img.show()
     
 
 def show_image(img,title=None):
+    print(title)
     img = img.clone().detach().cpu()
     un = UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))
-    img = img.clamp(0,1)
-    img = un(img).data.numpy()
+    img = un(img).clamp(0,1).data.numpy()
     img = img.transpose(1,2,0)
-    print(title)
     plt.figure(title)
     plt.imshow(img)
     plt.pause(0.01)
