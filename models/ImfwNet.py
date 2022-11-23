@@ -66,10 +66,19 @@ class ImfwNet(pl.LightningModule):
             nn.ReLU(),
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
         ])
+        # self.model = MyModuleList([
+        #     downsample,
+        #     res_blocks,
+        #     upsample
+        # ])
         self.model = MyModuleList([
-            downsample,
-            res_blocks,
-            upsample
+            nn.Conv2d(3,128,1),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            ResidualBlock(128),
+            nn.Conv2d(128,3,1)
         ])
 
     def forward(self, x):    
