@@ -185,7 +185,7 @@ class FWNetModule(pl.LightningModule):
         #         utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
-        # print("start configure_optimizers")
+        print("start configure_optimizers with device: %s"%(self.device))
         opt= torch.optim.SGD(self.fwNet.parameters(), self.lr)
         # print("finish configure_optimizers")
         return opt
