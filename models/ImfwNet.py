@@ -30,7 +30,6 @@ class ResidualBlock(nn.Module):
 
     def forward(self, x):
         return F.relu(self.conv(x)+x)
-nn.Module
 
 class ImfwNet(pl.LightningModule):
     def __init__(self) -> None:
@@ -176,7 +175,10 @@ class FWNetModule(pl.LightningModule):
         self.log('style_loss', style_loss, prog_bar=True)
         self.log('_tv_loss', _tv_loss, prog_bar=True)
         self.log('content_loss', content_loss, prog_bar=True)
-        self.manual_backward(loss,retain_graph = True)
+        style_loss.backward(retain_graph=True)
+        _tv_loss.backward()
+        content_loss.backward(retain_graph=True)
+        # self.manual_backward(loss,retain_graph = True)
         opt.step()
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
