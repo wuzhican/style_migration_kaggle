@@ -161,12 +161,6 @@ class FWNetModule(pl.LightningModule):
         style_loss = style_loss / len(self.style_layers)
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss
-        # if batch_index%self.train_epochs == self.train_epochs - 1:
-        #     with torch.no_grad():
-        #         test_img = self.trans(Image.open(self.test_image_path))
-        #         title = 'epoch %s'%(int((batch_index+1)/self.train_epochs))
-        #         target = self.fwNet(test_img)
-        #         utils.show_tensor(target,utils.show_image,title)
         self.log('train_loss', loss, prog_bar=True)
         self.log('style_loss', style_loss, prog_bar=True)
         self.log('_tv_loss', _tv_loss, prog_bar=True)
