@@ -67,8 +67,9 @@ class ImfwNet(pl.LightningModule):
             nn.ConvTranspose2d(32, 3, kernel_size=9, stride=1, padding=4)
         ])
         self.net = nn.Sequential(
-            nn.Conv2d(3,32,1),
-            nn.Conv2d(32,3,1),
+            nn.Conv2d(3,128,1),
+            ResidualBlock(128),
+            nn.Conv2d(128,3,1),
             nn.ReLU()
         )
         # self.model = MyModuleList([
