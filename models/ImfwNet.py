@@ -103,7 +103,7 @@ class FWNetModule(pl.LightningModule):
         # self.fwNet = ImfwNet()
         self.fwNet = nn.Sequential(
             nn.Conv2d(3,32,1),
-            nn.Conv2d(32,1,1)
+            nn.Conv2d(32,3,1)
         )
         vgg = vgg16(pretrained=True).features
         # vgg.eval()
