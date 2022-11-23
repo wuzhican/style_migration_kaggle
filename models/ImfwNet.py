@@ -176,8 +176,8 @@ class FWNetModule(pl.LightningModule):
         self.log('_tv_loss', _tv_loss, prog_bar=True)
         self.log('content_loss', content_loss, prog_bar=True)
         style_loss.backward(retain_graph=True)
-        _tv_loss.backward()
-        content_loss.backward(retain_graph=True)
+        _tv_loss.backward(retain_graph=True)
+        content_loss.backward()
         # self.manual_backward(loss,retain_graph = True)
         opt.step()
         
