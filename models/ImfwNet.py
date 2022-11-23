@@ -28,7 +28,7 @@ class ResidualBlock(nn.Module):
         ])
 
     def forward(self, x):
-        return F.relu(self.conv(x)+x)
+        return F.relu(self.conv(x)+x.clone())
 
 
 class ImfwNet(pl.LightningModule):
