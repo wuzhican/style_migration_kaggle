@@ -184,7 +184,7 @@ class FWNetModule(pl.LightningModule):
         # print("start configure_optimizers with device: %s"%(self.device))
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.fwNet.to(self.device)
-            opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
+        opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
         # print("finish configure_optimizers")
         return opt
         
