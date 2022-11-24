@@ -34,7 +34,7 @@ def load_image(image_path, shape=None):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
                              0.229, 0.224, 0.225])
     ])
-    image = in_transform(image).clamp(0,1)
+    image = in_transform(image)
     image = image[:3, :, :].unsqueeze(dim=0)
     return image
 
