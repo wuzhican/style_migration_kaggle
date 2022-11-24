@@ -84,10 +84,13 @@ class FWNetModule(pl.LightningModule):
                 setattr(self,key,args[key])
             else:
                 setattr(self,key,self.args_v[key])
+        print("args init finished")
         self.save_hyperparameters()
-        # print('init FWNetModule class ')
+        print('save_hyperparameters finished')
         self.fwNet = ImfwNet()
+        print('create fwNet finished')
         vgg = vgg16(pretrained=True).features
+        print('create vgg finished')
         # vgg.eval()
         # vgg.classifier = nn.Sequential()
         self.vgg = vgg
@@ -98,35 +101,42 @@ class FWNetModule(pl.LightningModule):
             '22':'layer4_3',
             '29':'layer5_3'
         })
+        print('create feature_net finished')
         self.trans = transforms.Compose([
                 transforms.Resize((512,512)),
                 transforms.CenterCrop(512),
                 transforms.ToTensor(),  # 转为0-1的张量
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
             ])
-        
+        print('create trans finished')
         # 内容表示的图层,均使用经过relu激活后的输出
         self.style_features = self.feature_net(self.style)
+        print('create style_features finished')
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
         self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+        print('create style_grams finished')
     
     @staticmethod
     def add_model_specific_args(parent_parser):
         return parent_parser
     
     def training_step(self, batch,batch_index):
+        print('start training_step')
         opt = self.optimizers()
         opt.zero_grad()
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
+            print('start device translate')
             self.style = self.style.to(self.device)
             self.style_features = self.feature_net(self.style)
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+            print('finished device translate')
         x = batch
         transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
-        
+        print('finished calculate transformed_images')
         transformed_features = self.feature_net(transformed_images)
+        print('finished calculate transformed_features')
         content_features = self.feature_net(x)
-
+        print('finished calculate content_features')
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = 0
@@ -135,12 +145,12 @@ class FWNetModule(pl.LightningModule):
                 content_loss += self.content_weight * F.mse_loss(
                     transformed_features[layer], content_features[layer])
         content_loss =  content_loss / len(self.content_layers)
-
+        print('finished calculate content_loss')
         # 全变分损失
         # total variation图像水平和垂直平移一个像素，与原图相减
         # 然后计算绝对值的和即为tv_loss
         _tv_loss = tv_loss(transformed_images, self.tv_weight) 
-
+        print('finished calculate _tv_loss')
         # 风格损失
         style_loss = 0
         for layer in self.style_grams:
@@ -153,25 +163,31 @@ class FWNetModule(pl.LightningModule):
                 style_loss += self.style_weight * F.mse_loss(transformed_gram,
                                     style_gram.expand_as(transformed_gram))
         style_loss = style_loss / len(self.style_layers)
+        print('finished calculate style_loss')
         # 3个损失加起来，梯度下降
         loss = style_loss + content_loss + _tv_loss
         if batch_index%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
+                print('start print test_img')
                 test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
                 title = 'epoch %s'%(int((batch_index+1)/self.train_epochs))
                 target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
+                print('finished print test_img')
         self.log_dict({
         'train_loss': loss,
         'style_loss': style_loss,
         '_tv_loss': _tv_loss,
         'content_loss': content_loss
         }, prog_bar=True)
+        print('finished log loss')
         style_loss.backward(retain_graph=True)
         _tv_loss.backward(retain_graph=True)
         content_loss.backward()
+        print('finished loss backward')
         # self.manual_backward(loss,retain_graph = True)
         opt.step()
+        print('finished opt step')
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
