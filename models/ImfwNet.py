@@ -1,4 +1,4 @@
-import torch
+import torch,numpy
 import torch.nn.functional as F
 import  torchvision.transforms as transforms
 import torch.nn as nn
@@ -161,10 +161,10 @@ class FWNetModule(pl.LightningModule):
                 title = 'epoch %s'%(int((batch_index+1)/self.train_epochs))
                 target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
-        self.log('train_loss', int(loss), prog_bar=True)
-        self.log('style_loss', int(style_loss), prog_bar=True)
-        self.log('_tv_loss', int(_tv_loss), prog_bar=True)
-        self.log('content_loss', int(content_loss), prog_bar=True)
+        self.log('train_loss', loss.data.numpy().astype(numpy.float32), prog_bar=True)
+        self.log('style_loss', style_loss.data.numpy().astype(numpy.float32), prog_bar=True)
+        self.log('_tv_loss', _tv_loss.data.numpy().astype(numpy.float32), prog_bar=True)
+        self.log('content_loss', content_loss.data.numpy().astype(numpy.float32), prog_bar=True)
         style_loss.backward(retain_graph=True)
         _tv_loss.backward(retain_graph=True)
         content_loss.backward()
