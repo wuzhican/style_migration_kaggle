@@ -36,7 +36,6 @@ class SMNet(pl.LightningModule):
             '22':'layer4_3',
             '29':'layer5_3'
         })
-        self.epochs = 0
         
     def training_step(self,batch,batch_index):
         opt = self.optimizers()
@@ -65,12 +64,11 @@ class SMNet(pl.LightningModule):
         self.log('loss', loss, prog_bar=True)
         # print('input image grad: '+str(self.input_image.grad))
         opt.step()
-        self.epochs += 1
         # loss.backward(retain_graph = True)
     
     def on_train_batch_end(self, outputs, batch, batch_idx: int, unused: int = 0) -> None:
-        if self.epochs%self.train_epochs == self.train_epochs - 1:
-            title = 'epoch %s'%(int((self.epochs+1)/self.train_epochs))
+        if batch_idx%self.train_epochs == self.train_epochs - 1:
+            title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
             # utils.show_tensor(self.input_image,title=title)
             utils.show_tensor(self.input_image,utils.show_pil,title)
     
