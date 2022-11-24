@@ -74,11 +74,11 @@ class FWNetModule(pl.LightningModule):
         'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
         'train_epochs':100,
         'test_image_path':'./data/MSNet/train/trans.jpg',
+        'style':None,
     }
     
-    def __init__(self,style:torch.Tensor,**args) -> None:
+    def __init__(self,**args) -> None:
         super().__init__()
-        self.style = style
         for key in self.args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
