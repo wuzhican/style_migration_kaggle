@@ -161,12 +161,11 @@ class FWNetModule(pl.LightningModule):
                 title = 'epoch %s'%(int((batch_index+1)/self.train_epochs))
                 target = self.fwNet(test_img)
                 utils.show_tensor(target,utils.show_image,title)
-        for i in range(loss.size[0]):
-            self.log_dict({
-            'train_loss': loss[i],
-            'style_loss': style_loss[i],
-            '_tv_loss': _tv_loss[i],
-            'content_loss': content_loss[i]
+        self.log_dict({
+        'train_loss': loss,
+        'style_loss': style_loss,
+        '_tv_loss': _tv_loss,
+        'content_loss': content_loss
         }, prog_bar=True)
         style_loss.backward(retain_graph=True)
         _tv_loss.backward(retain_graph=True)
