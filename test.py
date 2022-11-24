@@ -10,5 +10,8 @@ args = parser.parse_args()
 arg_v = vars(args)
 
 if __name__ == '__main__':
-    tester = getattr(tester,arg_v['model'])()
+    if arg_v['model'] == 'CameraTester':
+        tester = getattr(tester,arg_v['model'])('./data/lightning_logs/ImfwNet/version_0/checkpoints/epoch=0-step=229.ckpt')
+    else :
+        tester = getattr(tester,arg_v['model'])()
     tester.run()
