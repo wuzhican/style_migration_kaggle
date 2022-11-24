@@ -56,6 +56,7 @@ class CameraTester(AbstractTester):
         
     def run(self):
         while True:
+            a = time.time()
             ret,frame = self.cap.read_frame()
             if(ret):
                 torch.cuda.empty_cache()
@@ -63,6 +64,8 @@ class CameraTester(AbstractTester):
                 img = self.transform(frame).cuda()
                 target = self.fwnet.fwNet(img).cpu()
                 show_frame = self.to_numpy(target)
+                seconds = time.time() - a
+                cv2.putText(show_frame,"fps:%s"%(1/seconds),(5,50),cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
                 cv2.imshow(self.video_tag,show_frame)
                 key = cv2.waitKey(1)
                 if key == ord('q'):
