@@ -11,7 +11,7 @@ arg_v = vars(args)
 
 if __name__ == '__main__':
     if arg_v['model'] == 'CameraTester':
-        tester = getattr(tester,arg_v['model'])('./data/lightning_logs/ImfwNet/version_4/checkpoints/epoch=0-step=259.ckpt')
+        tester = getattr(tester,arg_v['model'])('./data/lightning_logs/ImfwNet/version_4/checkpoints/epoch=9-step=2590.ckpt')
     else :
         tester = getattr(tester,arg_v['model'])()
     tester.run()
