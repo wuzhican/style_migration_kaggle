@@ -102,12 +102,12 @@ class FWNetModule(pl.LightningModule):
         #     '29':'layer5_3'
         # })
         print('create feature_net finished')
-        self.trans = transforms.Compose([
-                transforms.Resize((512,512)),
-                transforms.CenterCrop(512),
-                transforms.ToTensor(),  # 转为0-1的张量
-                transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
-            ])
+        # self.trans = transforms.Compose([
+        #         transforms.Resize((512,512)),
+        #         transforms.CenterCrop(512),
+        #         transforms.ToTensor(),  # 转为0-1的张量
+        #         transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
+        #     ])
         print('create trans finished')
         # 内容表示的图层,均使用经过relu激活后的输出
         # self.style_features = self.feature_net(self.style)
