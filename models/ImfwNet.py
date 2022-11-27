@@ -78,7 +78,7 @@ class FWNetModule(pl.LightningModule):
     }
     
     def __init__(self,**args) -> None:
-        super().__init__()
+        super(FWNetModule, self).__init__()
         for key in self.args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
