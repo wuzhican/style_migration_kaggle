@@ -64,26 +64,14 @@ class ImfwNet(pl.LightningModule):
 
 class FWNetModule(pl.LightningModule):
     
-    args_v = {
-        'content_weight': 1e3,
-        'style_weight': 1,
-        'tv_weight': 1e-5,
-        'lr':1e-3,
-        'automatic_optimization': False,
-        'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'train_epochs':100,
-        'test_image_path':'./data/MSNet/train/trans.jpg',
-        'style':None,
-    }
     
     def __init__(self,**args) -> None:
         super(FWNetModule, self).__init__()
-        for key in self.args_v.keys():
-            if key in args.keys():
-                setattr(self,key,args[key])
-            else:
-                setattr(self,key,self.args_v[key])
+        # for key in self.args_v.keys():
+        #     if key in args.keys():
+        #         setattr(self,key,args[key])
+        #     else:
+        #         setattr(self,key,self.args_v[key])
         print("args init finished")
         self.save_hyperparameters()
         print('save_hyperparameters finished')
