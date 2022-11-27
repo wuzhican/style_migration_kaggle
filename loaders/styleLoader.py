@@ -28,11 +28,10 @@ class styleLoader(data.Dataset):
         idx = index % len(self.images)
         while(True):
             try:
-                print("start load image in index:%s"%(index))
+                # print("start load image in index:%s"%(index))
                 img = self.transform(
                     Image.open(os.path.join(self.root_dir, self.images[idx]))
                 )
-                print("finished load image in index:%s"%(index))
             except Exception as e:
                 print('catch exception when load image:%s ,exception message:%s '%(self.images[idx],e))
                 idx = (idx+1) % len(self.images)
