@@ -89,18 +89,18 @@ class FWNetModule(pl.LightningModule):
         print('save_hyperparameters finished')
         # self.fwNet = ImfwNet()
         print('create fwNet finished')
-        vgg = vgg16(pretrained=True).features
+        # vgg = vgg16(pretrained=True).features
         print('create vgg finished')
         # vgg.eval()
         # vgg.classifier = nn.Sequential()
-        self.vgg = vgg
-        self.feature_net = IntermediateLayerGetter(vgg,{
-            '3':'layer1_2',
-            '8':'layer2_2',
-            '15':'layer3_3',
-            '22':'layer4_3',
-            '29':'layer5_3'
-        })
+        # self.vgg = vgg
+        # self.feature_net = IntermediateLayerGetter(vgg,{
+        #     '3':'layer1_2',
+        #     '8':'layer2_2',
+        #     '15':'layer3_3',
+        #     '22':'layer4_3',
+        #     '29':'layer5_3'
+        # })
         print('create feature_net finished')
         self.trans = transforms.Compose([
                 transforms.Resize((512,512)),
@@ -110,10 +110,10 @@ class FWNetModule(pl.LightningModule):
             ])
         print('create trans finished')
         # 内容表示的图层,均使用经过relu激活后的输出
-        self.style_features = self.feature_net(self.style)
+        # self.style_features = self.feature_net(self.style)
         print('create style_features finished')
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+        # self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         print('create style_grams finished')
     
     @staticmethod
@@ -122,6 +122,7 @@ class FWNetModule(pl.LightningModule):
     
     def training_step(self, batch,batch_index):
         print('start training_step')
+        pass
         opt = self.optimizers()
         opt.zero_grad()
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
@@ -134,9 +135,9 @@ class FWNetModule(pl.LightningModule):
         # transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
         transformed_images = batch
         print('finished calculate transformed_images')
-        transformed_features = self.feature_net(transformed_images)
+        transformed_features = transformed_images
         print('finished calculate transformed_features')
-        content_features = self.feature_net(x)
+        content_features = transformed_images
         print('finished calculate content_features')
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
