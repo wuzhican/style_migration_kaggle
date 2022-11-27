@@ -87,7 +87,7 @@ class FWNetModule(pl.LightningModule):
         print("args init finished")
         self.save_hyperparameters()
         print('save_hyperparameters finished')
-        self.fwNet = ImfwNet()
+        # self.fwNet = ImfwNet()
         print('create fwNet finished')
         vgg = vgg16(pretrained=True).features
         print('create vgg finished')
@@ -131,7 +131,8 @@ class FWNetModule(pl.LightningModule):
             self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
             print('finished device translate')
         x = batch
-        transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
+        # transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
+        transformed_images = batch
         print('finished calculate transformed_images')
         transformed_features = self.feature_net(transformed_images)
         print('finished calculate transformed_features')
