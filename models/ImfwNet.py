@@ -153,7 +153,7 @@ class FWNetModule(pl.LightningModule):
         loss[2].backward()
         opt.step()
         
-    def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
+    def on_train_batch_end(self, outputs, batch, batch_idx,*args) -> None:
         torch.cuda.empty_cache()
         if batch_idx%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
