@@ -187,6 +187,7 @@ class FWNetModule(pl.LightningModule):
         #         utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
+        pass
         # print("start configure_optimizers with device: %s"%(self.device))
         # if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
         #     self.fwNet.to(self.device)
