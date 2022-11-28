@@ -177,6 +177,7 @@ class FWNetModule(pl.LightningModule):
         print('finished opt step')
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
+        pass
         # torch.cuda.empty_cache()
         # if batch_idx%self.train_epochs == self.train_epochs - 1:
         #     with torch.no_grad():
@@ -191,7 +192,6 @@ class FWNetModule(pl.LightningModule):
         #     self.fwNet.to(self.device)
         # opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
         # print("finish configure_optimizers")
-        return None
         
         
 if __name__ == '__main__':
