@@ -104,9 +104,6 @@ class FWNetModule(pl.LightningModule):
         # self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         print('create style_grams finished')
     
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        return parent_parser
     
     def training_step(self, batch,batch_index):
         print('start training_step')
