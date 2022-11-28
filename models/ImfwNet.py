@@ -117,9 +117,9 @@ class FWNetModule(pl.LightningModule):
         x = batch
         transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
         print('finished calculate transformed_images')
-        transformed_features = transformed_images
+        transformed_features = self.feature_net(transformed_images)
         print('finished calculate transformed_features')
-        content_features = transformed_images
+        content_features = self.feature_net(x)
         print('finished calculate content_features')
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
