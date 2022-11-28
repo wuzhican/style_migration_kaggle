@@ -147,7 +147,6 @@ class FWNetModule(pl.LightningModule):
             '_tv_loss': loss[2],
             'content_loss': loss[1]
         }, prog_bar=True)
-        print('finished log loss')
         loss[0].backward(retain_graph=True)
         loss[1].backward(retain_graph=True)
         loss[2].backward()
