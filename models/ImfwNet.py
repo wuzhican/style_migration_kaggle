@@ -177,7 +177,7 @@ class FWNetModule(pl.LightningModule):
         print('finished opt step')
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
         # if batch_idx%self.train_epochs == self.train_epochs - 1:
         #     with torch.no_grad():
         #         test_img = self.trans(Image.open(self.test_image_path)).to(self.device)

@@ -40,14 +40,19 @@ class SMNet(pl.LightningModule):
     def training_step(self,batch,batch_index):
         opt = self.optimizers()
         opt.zero_grad()
+        print('before trans batch device:%s'%(batch.device))
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
         if(str(self.device).find('XLA') != -1 and str(self.style.device) != str(batch.device)):
             batch = batch.to(self.device)
+            print('after trans batch device:%s'%(batch.device))
         self.input_image.data.clamp_(0,1)
+        print('feature_net device:%s'%(self.feature_net.device))
+        print('style device:%s'%(self.style.device))
         style_features = self.feature_net(self.style)
         content_features = self.feature_net(batch)
+        print('input_image device:%s'%(self.input_image.device))
         input_features = self.feature_net(self.input_image)
         content_loss = 0
         for layer in style_features:
@@ -72,7 +77,7 @@ class SMNet(pl.LightningModule):
         if batch_idx%self.train_epochs == self.train_epochs - 1:
             title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
             # utils.show_tensor(self.input_image,title=title)
-            utils.show_tensor(self.input_image,utils.show_pil,title)
+            utils.show_tensor(self.input_image,utils.show_image,title)
     
     def configure_optimizers(self):
         opt = torch.optim.Adam([self.input_image])
