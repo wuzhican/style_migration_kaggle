@@ -90,12 +90,11 @@ class FWNetModule(pl.LightningModule):
                 setattr(self,key,args[key])
             else:
                 setattr(self,key,self.args_v[key])
+        self.style = nn.Parameter(self.style)
         self.save_hyperparameters()
-        # print('init FWNetModule class ')
         self.fwNet = ImfwNet()
         vgg = vgg16(pretrained=True).features
-        # vgg.eval()
-        # vgg.classifier = nn.Sequential()
+        vgg.eval()
         self.vgg = vgg
         self.feature_net = IntermediateLayerGetter(vgg,{
             '3':'layer1_2',
@@ -114,17 +113,13 @@ class FWNetModule(pl.LightningModule):
         # 内容表示的图层,均使用经过relu激活后的输出
         self.style_features = self.feature_net(self.style)
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
+        self.style_grams = nn.ParameterDict({layer: gram_matrix(self.style_features[layer]) for layer in self.style_features})
     
     @staticmethod
     def add_model_specific_args(parent_parser):
         return parent_parser
     
     def training_step(self, batch,batch_index):
-        if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
-            self.style = self.style.to(self.device)
-            self.style_features = self.feature_net(self.style)
-            self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
         opt = self.optimizers()
         opt.zero_grad()
         x = batch
@@ -178,8 +173,6 @@ class FWNetModule(pl.LightningModule):
     
     def configure_optimizers(self):
         # print("start configure_optimizers with device: %s"%(self.device))
-        if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
-            self.fwNet.to(self.device)
         opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
         # print("finish configure_optimizers")
         return opt
