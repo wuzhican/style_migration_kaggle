@@ -48,7 +48,7 @@ class SMNet(pl.LightningModule):
             batch = batch.to(self.device)
             print('after trans batch device:%s'%(batch.device))
         self.input_image.data.clamp_(0,1)
-        print('feature_net device:%s'%(self.feature_net.device))
+        print('vgg device:%s'%(self.vgg.device))
         print('style device:%s'%(self.style.device))
         style_features = self.feature_net(self.style)
         content_features = self.feature_net(batch)
