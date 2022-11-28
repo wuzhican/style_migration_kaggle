@@ -79,7 +79,7 @@ class FWNetModule(pl.LightningModule):
             'test_image_path':'./data/MSNet/train/trans.jpg',
             'style':None,
         }
-        for key in self.args_v.keys():
+        for key in args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
