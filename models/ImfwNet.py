@@ -66,56 +66,42 @@ class FWNetModule(pl.LightningModule):
     
     
     def __init__(self,**args) -> None:
-        super(FWNetModule, self).__init__()
-        # for key in self.args_v.keys():
-        #     if key in args.keys():
-        #         setattr(self,key,args[key])
-        #     else:
-        #         setattr(self,key,self.args_v[key])
-        print("args init finished")
+        super().__init__()
+        for key in self.args_v.keys():
+            if key in args.keys():
+                setattr(self,key,args[key])
+            else:
+                setattr(self,key,self.args_v[key])
+        self.style = nn.Parameter(self.style)
         self.save_hyperparameters()
-        print('save_hyperparameters finished')
-        # self.fwNet = ImfwNet()
-        print('create fwNet finished')
-        # vgg = vgg16(pretrained=True).features
-        print('create vgg finished')
-        # vgg.eval()
-        # vgg.classifier = nn.Sequential()
-        # self.vgg = vgg
-        # self.feature_net = IntermediateLayerGetter(vgg,{
-        #     '3':'layer1_2',
-        #     '8':'layer2_2',
-        #     '15':'layer3_3',
-        #     '22':'layer4_3',
-        #     '29':'layer5_3'
-        # })
-        print('create feature_net finished')
-        # self.trans = transforms.Compose([
-        #         transforms.Resize((512,512)),
-        #         transforms.CenterCrop(512),
-        #         transforms.ToTensor(),  # 转为0-1的张量
-        #         transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
-        #     ])
-        print('create trans finished')
+        self.fwNet = ImfwNet()
+        vgg = vgg16(pretrained=True).features
+        vgg.eval()
+        self.vgg = vgg
+        self.feature_net = IntermediateLayerGetter(vgg,{
+            '3':'layer1_2',
+            '8':'layer2_2',
+            '15':'layer3_3',
+            '22':'layer4_3',
+            '29':'layer5_3'
+        })
+        self.trans = transforms.Compose([
+                transforms.Resize((512,512)),
+                transforms.CenterCrop(512),
+                transforms.ToTensor(),  # 转为0-1的张量
+                transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
+            ])
+        
         # 内容表示的图层,均使用经过relu激活后的输出
         # self.style_features = self.feature_net(self.style)
         print('create style_features finished')
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        # self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
-        print('create style_grams finished')
+        self.style_grams = nn.ParameterDict({layer: gram_matrix(self.style_features[layer]) for layer in self.style_features})
     
     
     def training_step(self, batch,batch_index):
-        print('start training_step')
-        pass
         opt = self.optimizers()
         opt.zero_grad()
-        if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
-            print('start device translate')
-            self.style = self.style.to(self.device)
-            self.style_features = self.feature_net(self.style)
-            self.style_grams = {layer: gram_matrix(self.style_features[layer]) for layer in self.style_features}
-            print('finished device translate')
         x = batch
         # transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
         transformed_images = batch
@@ -189,9 +175,7 @@ class FWNetModule(pl.LightningModule):
     def configure_optimizers(self):
         pass
         # print("start configure_optimizers with device: %s"%(self.device))
-        # if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
-        #     self.fwNet.to(self.device)
-        # opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
+        opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
         # print("finish configure_optimizers")
         
         
