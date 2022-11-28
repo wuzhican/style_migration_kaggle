@@ -45,7 +45,8 @@ class SMNet(pl.LightningModule):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
         if(str(self.device).find('xla') != -1 and str(self.style.device) != str(batch.device)):
-            batch = batch.to(self.device)
+            self.style = self.style.to(self.device)
+            self.input_image = self.input_image.to(self.device)
             print('after trans batch device:%s'%(batch.device))
         self.input_image.data.clamp_(0,1)
         # print('vgg device:%s'%(self.vgg.device))
