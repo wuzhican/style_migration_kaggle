@@ -69,29 +69,27 @@ class ImfwNet(nn.Module):
         
 
 class FWNetModule(pl.LightningModule):
-    
-    args_v = {
-        'content_weight': 1e3,
-        'style_weight': 1,
-        'tv_weight': 1e-5,
-        'lr':1e-3,
-        'automatic_optimization': False,
-        'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
-        'train_epochs':100,
-        'test_image_path':'./data/MSNet/train/trans.jpg',
-        'style':None,
-    }
-    
     def __init__(self,**args) -> None:
         super().__init__()
+        args_v = {
+            'content_weight': 1e3,
+            'style_weight': 1,
+            'tv_weight': 1e-5,
+            'lr':1e-3,
+            'automatic_optimization': False,
+            'content_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
+            'style_layers': ['layer1_2', 'layer2_2', 'layer3_3', 'layer4_3', 'layer5_3'],
+            'train_epochs':100,
+            'test_image_path':'./data/MSNet/train/trans.jpg',
+            'style':None,
+        }
         for key in self.args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
-                setattr(self,key,self.args_v[key])
+                setattr(self,key,args_v[key])
         self.style = nn.Parameter(self.style)
-        self.save_hyperparameters()
+        self.test_img = nn.Parameter(utils.load_image(self.test_image_path,shape=(512,512)))
         self.fwNet = ImfwNet()
         vgg = vgg16(pretrained=True).features
         vgg.eval()
@@ -110,24 +108,15 @@ class FWNetModule(pl.LightningModule):
                 transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
             ])
         
-        # 内容表示的图层,均使用经过relu激活后的输出
-        self.style_features = self.feature_net(self.style)
-        # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
-        self.style_grams = nn.ParameterDict({layer: gram_matrix(self.style_features[layer]) for layer in self.style_features})
+        style_features = self.feature_net(self.style)
+        self.style_features = nn.ParameterDict({key :nn.Parameter(style_features[key]) for key in style_features})
+        self.style_grams = nn.ParameterDict({layer: nn.Parameter(gram_matrix(self.style_features[layer])) for layer in self.style_features})
     
-    @staticmethod
-    def add_model_specific_args(parent_parser):
-        return parent_parser
-    
-    def training_step(self, batch,batch_index):
-        opt = self.optimizers()
-        opt.zero_grad()
+    def forward(self, batch, batch_index) :
         x = batch
         transformed_images = self.fwNet(x).clamp(-2.1, 2.7)
-        
         transformed_features = self.feature_net(transformed_images)
         content_features = self.feature_net(x)
-
         # 内容损失
         # 使用F.mse_loss函数计算预测(transformed_images)和标签(content_images)之间的损失
         content_loss = 0
@@ -136,12 +125,10 @@ class FWNetModule(pl.LightningModule):
                 content_loss += self.content_weight * F.mse_loss(
                     transformed_features[layer], content_features[layer])
         content_loss =  content_loss / len(self.content_layers)
-
         # 全变分损失
         # total variation图像水平和垂直平移一个像素，与原图相减
         # 然后计算绝对值的和即为tv_loss
         _tv_loss = tv_loss(transformed_images, self.tv_weight) 
-
         # 风格损失
         style_loss = 0
         for layer in self.style_grams:
@@ -154,28 +141,34 @@ class FWNetModule(pl.LightningModule):
                 style_loss += self.style_weight * F.mse_loss(transformed_gram,
                                     style_gram.expand_as(transformed_gram))
         style_loss = style_loss / len(self.style_layers)
-        # 3个损失加起来，梯度下降
-        loss = style_loss + content_loss + _tv_loss
-        self.log('train_loss', loss, prog_bar=True)
-        self.log('style_loss', style_loss, prog_bar=True)
-        self.log('_tv_loss', _tv_loss, prog_bar=True)
-        self.log('content_loss', content_loss, prog_bar=True)
+        return style_loss , content_loss , _tv_loss
+    
+    def training_step(self, batch, batch_index):
+        opt = self.optimizers()
+        opt.zero_grad()
+        loss = self(batch,batch_index)
+        self.log_dict({
+            'loss': loss[0]+loss[1]+loss[2],
+            'style_loss': loss[0],
+            '_tv_loss': loss[2],
+            'content_loss': loss[1]
+        }, prog_bar=True)
+        print('finished log loss')
+        loss[0].backward(retain_graph=True)
+        loss[1].backward(retain_graph=True)
+        loss[2].backward()
         opt.step()
         
     def on_train_batch_end(self, outputs, batch, batch_idx) -> None:
         torch.cuda.empty_cache()
         if batch_idx%self.train_epochs == self.train_epochs - 1:
             with torch.no_grad():
-                test_img = self.trans(Image.open(self.test_image_path)).to(self.device)
                 title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
-                target = self.fwNet(test_img)
+                target = self.fwNet(self.test_img)
                 utils.show_tensor(target,utils.show_image,title)
     
     def configure_optimizers(self):
-        # print("start configure_optimizers with device: %s"%(self.device))
-        opt= torch.optim.Adam(self.fwNet.parameters(), self.lr)
-        # print("finish configure_optimizers")
-        return opt
+        return torch.optim.Adam(self.fwNet.parameters(), self.lr)
         
         
 if __name__ == '__main__':
