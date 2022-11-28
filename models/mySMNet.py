@@ -44,11 +44,11 @@ class SMNet(pl.LightningModule):
         if(str(self.device).find('cuda') != -1 and str(self.style.device) != str(self.device)):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
-        if(str(self.device).find('XLA') != -1 and str(self.style.device) != str(batch.device)):
+        if(str(self.device).find('xla') != -1 and str(self.style.device) != str(batch.device)):
             batch = batch.to(self.device)
             print('after trans batch device:%s'%(batch.device))
         self.input_image.data.clamp_(0,1)
-        print('vgg device:%s'%(self.vgg.device))
+        # print('vgg device:%s'%(self.vgg.device))
         print('style device:%s'%(self.style.device))
         style_features = self.feature_net(self.style)
         content_features = self.feature_net(batch)
