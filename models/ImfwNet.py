@@ -77,7 +77,7 @@ class FWNetModule(pl.LightningModule):
             'test_image_path':'./data/MSNet/train/trans.jpg',
             'style':None,
         }
-        for key in self.args_v.keys():
+        for key in args_v.keys():
             if key in args.keys():
                 setattr(self,key,args[key])
             else:
@@ -86,8 +86,7 @@ class FWNetModule(pl.LightningModule):
         self.test_img = nn.Parameter(utils.load_image(self.test_image_path,shape=(512,512)))
         self.fwNet = ImfwNet()
         vgg = vgg16(pretrained=True).features
-        # vgg.eval()
-        # vgg.classifier = nn.Sequential()
+        vgg.eval()
         self.vgg = vgg
         self.feature_net = IntermediateLayerGetter(vgg,{
             '3':'layer1_2',
