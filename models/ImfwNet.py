@@ -105,7 +105,7 @@ class FWNetModule(pl.LightningModule):
             ])
         
         # 内容表示的图层,均使用经过relu激活后的输出
-        # self.style_features = self.feature_net(self.style)
+        self.style_features = nn.ParameterDict(self.feature_net(self.style))
         print('create style_features finished')
         # 为我们的风格表示计算每层的格拉姆矩阵，使用字典保存
         self.style_grams = nn.ParameterDict({layer: gram_matrix(self.style_features[layer]) for layer in self.style_features})
