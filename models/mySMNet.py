@@ -68,7 +68,9 @@ class SMNet(pl.LightningModule):
                     input_features[layer])), utils.gram_matrix(input_features[layer]))
         style_loss = self.style_weight * style_loss
         loss = style_loss+content_loss
-        self.manual_backward(loss,retain_graph = True)
+        style_loss.backward(retain_graph = True)
+        content_loss.backward()
+        # self.manual_backward(loss,retain_graph = True)
         self.log('loss', loss, prog_bar=True)
         # print('input image grad: '+str(self.input_image.grad))
         opt.step()
