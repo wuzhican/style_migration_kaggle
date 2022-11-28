@@ -13,7 +13,7 @@ class SMNet(pl.LightningModule):
     
     def __init__(self,style:torch.Tensor,**args) -> None:
         super().__init__()
-        self.style = style
+        self.style = nn.Parameter(style)
         args_v = {
             'content_weight': 1e3,
             'style_weight': 1,
@@ -28,7 +28,7 @@ class SMNet(pl.LightningModule):
             else:
                 setattr(self,key,args_v[key])
         self.vgg = models.vgg16(pretrained=True)
-        self.input_image = nn.Parameter(torch.rand(style.size()).data)
+        self.input_image = nn.Parameter(torch.rand(style.size()))
         self.feature_net = IntermediateLayerGetter(self.vgg.features, {
             '3':'layer1_2',
             '8':'layer2_2',
@@ -45,8 +45,8 @@ class SMNet(pl.LightningModule):
             self.style = self.style.to(self.device)
             self.input_image = self.input_image.to(self.device)
         if(str(self.device).find('xla') != -1 and str(self.style.device) != str(batch.device)):
-            self.style = self.style.to(self.device)
-            self.input_image = self.input_image.to(self.device)
+            # self.style = self.style.to(self.device)
+            # self.input_image = self.input_image.to(self.device)
             print('after trans batch device:%s'%(batch.device))
         self.input_image.data.clamp_(0,1)
         # print('vgg device:%s'%(self.vgg.device))
