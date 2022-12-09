@@ -101,7 +101,7 @@ else:
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
-        hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
+        hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=2, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="AdainNet")
         models_args={
             'logger':logger

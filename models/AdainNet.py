@@ -98,7 +98,7 @@ class AdainNetModule(pl.LightningModule):
     arg_v = {
         'alpha':1.0,
         'lr':1e-5,
-        'train_epochs':100,
+        'train_epochs':10000,
         'automatic_optimization': False,
         'content_weight': 1,
         'style_weight': 10,
@@ -131,6 +131,15 @@ class AdainNetModule(pl.LightningModule):
         target_std,target_mean = self.adain.calculate_mean_std(target.view(b,c,-1))
         return self.loss(input_mean,target_mean) + self.loss(input_std,target_std)
         
+    def trans_image(self,batch,batch_index) :
+        content,style = batch
+        style_feats = self.encoder_net(style)
+        content_feats = self.encoder_net(content)
+        t = self.adain([content_feats['layer4_1'],style_feats['layer4_1']])
+        target = self.alpha * t + (1-self.alpha) *content_feats['layer4_1']
+        g_target = self.decoder(target)
+        return g_target
+    
     def forward(self,batch, batch_index) :
         content,style = batch
         style_feats = self.feature_net(style)
@@ -143,7 +152,7 @@ class AdainNetModule(pl.LightningModule):
         style_loss = 0
         for key in style_feats.keys():
             style_loss += self.calculate_style_loss(style_feats[key],g_target_feats[key])
-        return content_loss,style_loss,target
+        return content_loss,style_loss,g_target
     
     def training_step(self, batch, batch_index):
         opt = self.optimizers()
