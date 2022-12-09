@@ -1,4 +1,4 @@
-import torch
+import torch,utils
 import torch.nn as nn
 import pytorch_lightning as pl
 from torchvision.models._utils import IntermediateLayerGetter
@@ -143,12 +143,16 @@ class AdainNetModule(pl.LightningModule):
         style_loss = 0
         for key in style_feats.keys():
             style_loss += self.calculate_style_loss(style_feats[key],g_target_feats[key])
-        return content_loss,style_loss
+        return content_loss,style_loss,target
     
     def training_step(self, batch, batch_index):
         opt = self.optimizers()
         opt.zero_grad()
-        content_loss,style_loss = self(batch,batch_index)
+        target = None
+        if batch_index % self.train_epochs == self.train_epochs - 1:
+            content_loss,style_loss,target = self(batch,batch_index)
+        else:
+            content_loss,style_loss,_ = self(batch,batch_index)
         content_loss = content_loss*self.content_weight
         style_loss = style_loss*self.style_weight
         self.log_dict({
@@ -159,7 +163,15 @@ class AdainNetModule(pl.LightningModule):
         content_loss.backward(retain_graph=True)
         style_loss.backward()
         opt.step()
+        return target
         
+    def on_train_batch_end(self, outputs, batch, batch_idx,*args) -> None:
+        torch.cuda.empty_cache()
+        if len(outputs) != 0:
+            title = 'epoch %s'%(int((batch_idx+1)/self.train_epochs))
+            utils.show_tensor(outputs['loss'],utils.show_image,title)
+        
+    
     def configure_optimizers(self):
         return torch.optim.Adam(self.decoder.parameters(), self.lr)
         
