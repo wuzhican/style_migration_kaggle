@@ -13,12 +13,13 @@ from pytorch_lightning.loggers import TensorBoardLogger
 # import tensorboard
 
 batch_size = 2
-root_dir='./data'
+root_dir='./data/train'
 data_save_root='./checkpoint'
 style_image_path='./data/style.jpeg'
 models_choice_from = [
     "ImfwNet",
-    "SMNet"
+    "SMNet",
+    "AdainNetModule"
 ]
 default_args = [
     ['--model',str,'DeeplabUpsampleModel'],
@@ -90,6 +91,17 @@ else:
         )
         hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="SMNet")
+        models_args={
+            'logger':logger
+        }
+    elif arg_v['model'] == 'AdainNetModule':
+        module = models.AdainNetModule(lr=1e-3)
+        train_dataset = loaders.adainLoader(root_dir,'./data/style5.jpeg',augment_ratio=1)
+        loader = (
+            DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
+        )
+        hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
+        logger = TensorBoardLogger("./data/lightning_logs", name="AdainNet")
         models_args={
             'logger':logger
         }
