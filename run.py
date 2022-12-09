@@ -32,6 +32,7 @@ default_args = [
     ['--content_weight',float,1e3],
     ['--tv_weight',float,1e-6],
     ['--resume_path',str,data_save_root],
+    ['--num_workers',int,2],
 ]
     
 
@@ -69,7 +70,7 @@ else:
         )
         train_dataset = loaders.styleLoader(root_dir,augment_ratio=2)
         loader = (
-            DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
+            DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
         hooks = [EarlyStopping(monitor="train_loss", min_delta=0.1, patience=3, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="ImfwNet")
@@ -87,7 +88,7 @@ else:
         )
         train_dataset = loaders.styleLoader(root_dir,augment_ratio=int(1e9))
         loader = (
-            DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
+            DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
         hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="SMNet")
@@ -96,9 +97,9 @@ else:
         }
     elif arg_v['model'] == 'AdainNetModule':
         module = models.AdainNetModule(lr=1e-3)
-        train_dataset = loaders.adainLoader(root_dir,'./data/style5.jpeg',augment_ratio=1)
+        train_dataset = loaders.adainLoader(root_dir,style_image_path,augment_ratio=1)
         loader = (
-            DataLoader(train_dataset, batch_size=batch_size,num_workers=2,drop_last=True),
+            DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
         hooks = [EarlyStopping(monitor="loss", min_delta=1e-2, patience=9, verbose=False, mode="min")]
         logger = TensorBoardLogger("./data/lightning_logs", name="AdainNet")
