@@ -32,6 +32,7 @@ default_args = [
     ['--content_weight',float,1e3],
     ['--tv_weight',float,1e-6],
     ['--resume_path',str,data_save_root],
+    ['--augment_ratio',int,1000]
     ['--num_workers',int,2],
 ]
     
@@ -68,7 +69,7 @@ else:
             automatic_optimization=False,
             lr=lr
         )
-        train_dataset = loaders.styleLoader(root_dir,augment_ratio=2)
+        train_dataset = loaders.styleLoader(root_dir,augment_ratio=arg_v['augment_ratio'])
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
@@ -86,7 +87,7 @@ else:
             content_layers = ['layer2_2'],
             style_layers = ['layer3_3', 'layer4_3']
         )
-        train_dataset = loaders.styleLoader(root_dir,augment_ratio=int(1e9))
+        train_dataset = loaders.styleLoader(root_dir,augment_ratio=arg_v['augment_ratio'])
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
@@ -101,7 +102,7 @@ else:
             content_weight=content_weight,
             style_weight=style_weight,
         )
-        train_dataset = loaders.adainLoader(root_dir,style_image_path,augment_ratio=1)
+        train_dataset = loaders.adainLoader(root_dir,style_image_path,augment_ratio=arg_v['augment_ratio'])
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
         )
