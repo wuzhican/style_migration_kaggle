@@ -96,7 +96,11 @@ else:
             'logger':logger
         }
     elif arg_v['model'] == 'AdainNetModule':
-        module = models.AdainNetModule(lr=1e-3)
+        module = models.AdainNetModule(
+            lr=lr,
+            content_weight=content_weight,
+            style_weight=style_weight,
+        )
         train_dataset = loaders.adainLoader(root_dir,style_image_path,augment_ratio=1)
         loader = (
             DataLoader(train_dataset, batch_size=batch_size,num_workers=arg_v['num_workers'],drop_last=True),
