@@ -32,7 +32,7 @@ default_args = [
     ['--content_weight',float,1e3],
     ['--tv_weight',float,1e-6],
     ['--resume_path',str,data_save_root],
-    ['--augment_ratio',int,1000]
+    ['--augment_ratio',int,1000],
     ['--num_workers',int,2],
 ]
     
