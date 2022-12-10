@@ -148,7 +148,7 @@ class AdainNetModule(pl.LightningModule):
         target = self.alpha * t + (1-self.alpha) *content_feats['layer4_1']
         g_target = self.decoder(target)
         g_target_feats = self.feature_net(g_target)
-        content_loss = self.loss(g_target_feats['layer4_1'],t)
+        content_loss = self.loss(g_target_feats['layer4_1'],target)
         style_loss = 0
         for key in style_feats.keys():
             style_loss += self.calculate_style_loss(style_feats[key],g_target_feats[key])
