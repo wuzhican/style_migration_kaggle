@@ -15,7 +15,7 @@ from pytorch_lightning.loggers import TensorBoardLogger
 batch_size = 2
 root_dir='./data/train'
 data_save_root='./checkpoint'
-style_image_path='./data/style.jpeg'
+style_image_path='./data/styles'
 models_choice_from = [
     "ImfwNet",
     "SMNet",
