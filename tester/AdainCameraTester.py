@@ -6,7 +6,7 @@ class AdainCameraTester(AbstractTester):
     args_v = {
         'video':0,
         'video_tag':'adain video',
-        'style_path':'./data/style6.jpg',
+        'style_path':'./data/styles/style5.jpeg',
         'transform': transforms.Compose([
             transforms.Lambda(lambda x:cv2.flip(x,1)),
             transforms.Lambda(lambda x:cv2.resize(x, (512,512))),
@@ -17,7 +17,8 @@ class AdainCameraTester(AbstractTester):
             transforms.Lambda(lambda x:utils.UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))(x)),
             transforms.Lambda(lambda x:x.clamp(0,1)),
             transforms.ToPILImage(),
-            transforms.Lambda(lambda x:cv2.cvtColor(numpy.asarray(x),cv2.COLOR_RGB2BGR))
+            transforms.Lambda(lambda x:cv2.cvtColor(numpy.asarray(x),cv2.COLOR_RGB2BGR)),
+            transforms.Lambda(lambda x:cv2.resize(x, (1280,720)))
         ])
     }
     
