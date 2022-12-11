@@ -1,16 +1,22 @@
 import torch,utils
 import torch.nn as nn
 import pytorch_lightning as pl
+from torchvision.models import vgg19
 from torchvision.models._utils import IntermediateLayerGetter
 
 class VggConvLayer(nn.Module):
-    def __init__(self,in_channel,out_channel,layer_num=1) -> None:
+    def __init__(self,in_channel,out_channel,layer_num=1,init_weight=None) -> None:
         super().__init__()
         assert layer_num >= 1
         modules = []
         for i in range(layer_num):
             modules.append(nn.ReflectionPad2d(1))
-            modules.append(nn.Conv2d(in_channel,out_channel,3))
+            if init_weight != None:
+                c = nn.Conv2d(in_channel,out_channel,3)
+                c.weight = init_weight[i]
+                modules.append(c)
+            else:
+                modules.append(nn.Conv2d(in_channel,out_channel,3))
             modules.append(nn.ReLU())
         self.layers = nn.Sequential(*modules)
 
@@ -22,18 +28,23 @@ class VggConvLayer(nn.Module):
 class VggEncoder(nn.Module):
     def __init__(self) -> None:
         super().__init__()
+        init_vgg = vgg19(pretrained=True)
         self.layers = nn.Sequential(
             nn.Conv2d(3,3,1),
-            VggConvLayer(3,64),
-            VggConvLayer(64,64),
+            VggConvLayer(3,64,init_weight=[init_vgg.features[0].weight]),
+            VggConvLayer(64,64,init_weight=[init_vgg.features[2].weight]),
             nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(64,128),
-            VggConvLayer(128,128),
+            VggConvLayer(64,128,init_weight=[init_vgg.features[5].weight]),
+            VggConvLayer(128,128,init_weight=[init_vgg.features[7].weight]),
             nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(128,256),
-            VggConvLayer(256,256,3),
+            VggConvLayer(128,256,init_weight=[init_vgg.features[10].weight]),
+            VggConvLayer(256,256,3,init_weight=[
+                init_vgg.features[12].weight,
+                init_vgg.features[14].weight,
+                init_vgg.features[16].weight,    
+            ]),
             nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(256,512),
+            VggConvLayer(256,512,init_weight=[init_vgg.features[19].weight]),
             # VggConvLayer(512,512,3),
             # nn.MaxPool2d(2,2,ceil_mode=True),
             # VggConvLayer(512,512,4)
@@ -55,7 +66,9 @@ class Decoder(nn.Module):
             VggConvLayer(128,64),
             nn.Upsample(scale_factor=2, mode='nearest'),
             VggConvLayer(64,64),
-            VggConvLayer(64,3)
+            # VggConvLayer(64,3)
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(64,3,3)
         )
         
     def forward(self,x):
@@ -64,7 +77,7 @@ class Decoder(nn.Module):
 class Adain(nn.Module):
     
     arg_v = {
-        'eps':1e-5
+        'eps':1e-11
     }
     
     def __init__(self,**kwargs) -> None:
@@ -98,7 +111,7 @@ class AdainNetModule(pl.LightningModule):
     arg_v = {
         'alpha':1.0,
         'lr':1e-5,
-        'train_epochs':10000,
+        'train_epochs':50,
         'automatic_optimization': False,
         'content_weight': 1,
         'style_weight': 10,
@@ -112,7 +125,7 @@ class AdainNetModule(pl.LightningModule):
             else:
                 setattr(self,key,self.arg_v[key])
         assert self.alpha >= 0 and self.alpha <= 1
-        self.encoder = VggEncoder()
+        self.encoder = VggEncoder().eval()
         self.feature_net =  IntermediateLayerGetter(self.encoder.layers,{
             '1':'layer1_1',
             '4':'layer2_1',
@@ -131,7 +144,7 @@ class AdainNetModule(pl.LightningModule):
         target_std,target_mean = self.adain.calculate_mean_std(target.view(b,c,-1))
         return self.loss(input_mean,target_mean) + self.loss(input_std,target_std)
         
-    def trans_image(self,batch,batch_index) :
+    def trans_image(self,batch) :
         content,style = batch
         style_feats = self.encoder_net(style)
         content_feats = self.encoder_net(content)
