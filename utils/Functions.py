@@ -46,6 +46,12 @@ def show_pil(img,title=None):
     img = to_img(un(img).clamp(0,1))
     img.show()
     
+def show_pil_noNor(img,title=None):
+    print(title)
+    img = img.clone().detach().cpu()
+    to_img = transforms.ToPILImage()
+    img = to_img(img.clamp(0,1))
+    img.show()
 
 def show_image(img,title=None):
     print(title)

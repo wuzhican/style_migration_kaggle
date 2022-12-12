@@ -11,10 +11,10 @@ class AdainCameraTester(AbstractTester):
             transforms.Lambda(lambda x:cv2.flip(x,1)),
             transforms.Lambda(lambda x:cv2.resize(x, (512,512))),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+            # transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ]),
         'to_numpy': transforms.Compose([
-            transforms.Lambda(lambda x:utils.UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))(x)),
+            # transforms.Lambda(lambda x:utils.UnNormalize((0.485, 0.456, 0.406),(0.229, 0.224, 0.225))(x)),
             transforms.Lambda(lambda x:x.clamp(0,1)),
             transforms.ToPILImage(),
             transforms.Lambda(lambda x:cv2.cvtColor(numpy.asarray(x),cv2.COLOR_RGB2BGR)),

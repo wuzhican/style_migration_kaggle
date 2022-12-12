@@ -95,7 +95,7 @@ class Adain(nn.Module):
         return x_std,x_mean
     
     def forward(self,x):
-        content_feat,style_feat = x
+        content_feat,style_feat,alpha = x
         assert content_feat.size()[:2] == style_feat.size()[:2]
         content_size = content_feat.size()
         b,c = content_size[:2]
@@ -103,7 +103,8 @@ class Adain(nn.Module):
         content_std,content_mean = self.calculate_mean_std(content_feat)
         style_std,style_mean = self.calculate_mean_std(style_feat)
         normalized_feat = (content_feat - content_mean) / content_std
-        return (normalized_feat* style_std + style_mean).view(*content_size)
+        t = (normalized_feat* style_std + style_mean)
+        return (alpha * t + (1-alpha) *content_feat).view(*content_size)
         
     
 class AdainNetModule(pl.LightningModule):
@@ -115,6 +116,13 @@ class AdainNetModule(pl.LightningModule):
         'automatic_optimization': False,
         'content_weight': 1,
         'style_weight': 10,
+        'content_layer':'layer4_1',
+        'encoder_layers':{
+            '1':'layer1_1',
+            '4':'layer2_1',
+            '7':'layer3_1',
+            '10':'layer4_1'
+        },
     }
     
     def __init__(self, **kwargs) -> None:
@@ -126,13 +134,7 @@ class AdainNetModule(pl.LightningModule):
                 setattr(self,key,self.arg_v[key])
         assert self.alpha >= 0 and self.alpha <= 1
         self.encoder = VggEncoder().eval()
-        self.feature_net =  IntermediateLayerGetter(self.encoder.layers,{
-            '1':'layer1_1',
-            '4':'layer2_1',
-            '7':'layer3_1',
-            '10':'layer4_1'
-        })
-        self.encoder_net = IntermediateLayerGetter(self.encoder.layers,{'10':'layer4_1'})
+        self.feature_net =  IntermediateLayerGetter(self.encoder.layers,self.encoder_layers)
         self.adain = Adain()
         self.decoder = Decoder()
         self.loss = nn.MSELoss()
@@ -146,22 +148,24 @@ class AdainNetModule(pl.LightningModule):
         
     def trans_image(self,batch) :
         content,style = batch
-        style_feats = self.encoder_net(style)
-        content_feats = self.encoder_net(content)
-        t = self.adain([content_feats['layer4_1'],style_feats['layer4_1']])
-        target = self.alpha * t + (1-self.alpha) *content_feats['layer4_1']
-        g_target = self.decoder(target)
+        style_feats = self.feature_net(style)
+        content_feats = self.feature_net(content)
+        t = self.adain([content_feats['layer4_1'],style_feats['layer4_1'],self.alpha])
+        g_target = self.decoder(t)
         return g_target
     
     def forward(self,batch, batch_index) :
         content,style = batch
         style_feats = self.feature_net(style)
-        content_feats = self.encoder_net(content)
-        t = self.adain([content_feats['layer4_1'],style_feats['layer4_1']])
-        target = self.alpha * t + (1-self.alpha) *content_feats['layer4_1']
-        g_target = self.decoder(target)
+        content_feats = self.feature_net(content)
+        t = self.adain([content_feats['layer4_1'],style_feats['layer4_1'],self.alpha])
+        g_target = self.decoder(t)
         g_target_feats = self.feature_net(g_target)
-        content_loss = self.loss(g_target_feats['layer4_1'],target)
+        content_loss = self.loss(g_target_feats[self.content_layer],self.adain([
+            content_feats[self.content_layer],
+            style_feats[self.content_layer],
+            self.alpha
+        ]))
         style_loss = 0
         for key in style_feats.keys():
             style_loss += self.calculate_style_loss(style_feats[key],g_target_feats[key])
