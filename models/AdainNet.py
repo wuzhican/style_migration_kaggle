@@ -13,7 +13,8 @@ class VggConvLayer(nn.Module):
             modules.append(nn.ReflectionPad2d(1))
             if init_weight != None:
                 c = nn.Conv2d(in_channel,out_channel,3)
-                c.weight = init_weight[i]
+                c.weight = init_weight[i][0]
+                c.bias = init_weight[i][1]
                 modules.append(c)
             else:
                 modules.append(nn.Conv2d(in_channel,out_channel,3))
@@ -31,20 +32,32 @@ class VggEncoder(nn.Module):
         init_vgg = vgg19(pretrained=True)
         self.layers = nn.Sequential(
             # nn.Conv2d(3,3,1),
-            VggConvLayer(3,64,init_weight=[init_vgg.features[0].weight]),
-            VggConvLayer(64,64,init_weight=[init_vgg.features[2].weight]),
-            nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(64,128,init_weight=[init_vgg.features[5].weight]),
-            VggConvLayer(128,128,init_weight=[init_vgg.features[7].weight]),
-            nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(128,256,init_weight=[init_vgg.features[10].weight]),
-            VggConvLayer(256,256,3,init_weight=[
-                init_vgg.features[12].weight,
-                init_vgg.features[14].weight,
-                init_vgg.features[16].weight,    
+            VggConvLayer(3,64,init_weight=[
+                (init_vgg.features[0].weight,init_vgg.features[0].bias)
+            ]),
+            VggConvLayer(64,64,init_weight=[
+                (init_vgg.features[2].weight,init_vgg.features[2].bias)
             ]),
             nn.MaxPool2d(2,2,ceil_mode=True),
-            VggConvLayer(256,512,init_weight=[init_vgg.features[19].weight]),
+            VggConvLayer(64,128,init_weight=[
+                (init_vgg.features[5].weight,init_vgg.features[5].bias)    
+            ]),
+            VggConvLayer(128,128,init_weight=[
+                (init_vgg.features[7].weight,init_vgg.features[7].bias)
+            ]),
+            nn.MaxPool2d(2,2,ceil_mode=True),
+            VggConvLayer(128,256,init_weight=[
+                (init_vgg.features[10].weight,init_vgg.features[10].bias)   
+            ]),
+            VggConvLayer(256,256,3,init_weight=[
+                (init_vgg.features[12].weight,init_vgg.features[12].bias),
+                (init_vgg.features[14].weight,init_vgg.features[14].bias),
+                (init_vgg.features[16].weight,init_vgg.features[16].bias),    
+            ]),
+            nn.MaxPool2d(2,2,ceil_mode=True),
+            VggConvLayer(256,512,init_weight=[
+                (init_vgg.features[19].weight,init_vgg.features[19].bias)
+            ]),
             # VggConvLayer(512,512,3),
             # nn.MaxPool2d(2,2,ceil_mode=True),
             # VggConvLayer(512,512,4)
@@ -118,10 +131,10 @@ class AdainNetModule(pl.LightningModule):
         'style_weight': 10,
         'content_layer':'layer4_1',
         'encoder_layers':{
-            '1':'layer1_1',
-            '4':'layer2_1',
-            '7':'layer3_1',
-            '10':'layer4_1'
+            '0':'layer1_1',
+            '3':'layer2_1',
+            '6':'layer3_1',
+            '9':'layer4_1'
         },
     }
     
