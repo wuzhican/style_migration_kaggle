@@ -30,7 +30,7 @@ class VggEncoder(nn.Module):
         super().__init__()
         init_vgg = vgg19(pretrained=True)
         self.layers = nn.Sequential(
-            nn.Conv2d(3,3,1),
+            # nn.Conv2d(3,3,1),
             VggConvLayer(3,64,init_weight=[init_vgg.features[0].weight]),
             VggConvLayer(64,64,init_weight=[init_vgg.features[2].weight]),
             nn.MaxPool2d(2,2,ceil_mode=True),
